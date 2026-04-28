@@ -1,0 +1,16 @@
+service: checkout
+steady_state:
+  p99_latency_seconds: 0.300
+  error_rate: 0.010
+hard_safety_limits:
+  max_p99_latency_seconds: 0.600
+  max_error_rate: 0.030
+adaptive_zone:
+  alert_relative_deviation: 0.20
+  limit_relative_deviation: 0.40
+windows:
+  instant: 60s
+  accumulated: 10m
+required_evidence:
+  - metric_signal
+  - trace_or_log_corroboration

@@ -1,0 +1,16 @@
+groups:
+  - name: mecade-layer1
+    rules:
+      - record: mecade:availability_ratio_5m
+        expr: |
+          sum(rate(http_requests_total{service="checkout",status!~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total{service="checkout"}[5m]))
+
+      - alert: Layer1AvailabilityDrop
+        expr: mecade:availability_ratio_5m < 0.995
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Layer1 availability below steady-state objective"

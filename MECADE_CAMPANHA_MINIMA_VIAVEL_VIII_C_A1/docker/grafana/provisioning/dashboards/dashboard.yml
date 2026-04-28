@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: "MECADE Campaign VIII-C Dashboards"
+    orgId: 1
+    folder: "MECADE Campaign VIII-C"
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

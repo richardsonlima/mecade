@@ -1,0 +1,22 @@
+expectations:
+  - expect_column_values_to_not_be_null:
+      column: timestamp
+
+  - expect_column_values_to_be_between:
+      column: availability
+      min_value: 0
+      max_value: 1
+
+  - expect_column_values_to_be_between:
+      column: p99_latency_seconds
+      min_value: 0
+      max_value: 5
+
+  - expect_column_values_to_be_between:
+      column: tsr
+      min_value: 0
+      max_value: 1
+
+  - expect_column_pair_values_A_to_be_greater_than_B:
+      column_A: window_end
+      column_B: window_start

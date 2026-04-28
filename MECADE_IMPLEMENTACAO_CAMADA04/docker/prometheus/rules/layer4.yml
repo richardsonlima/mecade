@@ -1,0 +1,13 @@
+groups:
+  - name: mecade-layer4
+    interval: 30s
+    rules:
+      - record: mecade:l4:up_targets
+        expr: count(up == 1)
+      - alert: Layer4ObservabilityLowCoverage
+        expr: mecade:l4:up_targets < 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Camada 4 sem alvos suficientes em observabilidade"

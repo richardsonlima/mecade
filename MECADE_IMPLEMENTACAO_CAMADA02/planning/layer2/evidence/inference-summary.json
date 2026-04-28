@@ -1,0 +1,14 @@
+{
+  "n_runs": 10,
+  "mean_delta_mttr_seconds": -40.7,
+  "ci95": [
+    -41.4187,
+    -39.9813
+  ],
+  "effect_percent": 22.3749,
+  "decision": {
+    "ci95_below_zero": true,
+    "effect_ge_10_percent": true,
+    "approved": true
+  }
+}

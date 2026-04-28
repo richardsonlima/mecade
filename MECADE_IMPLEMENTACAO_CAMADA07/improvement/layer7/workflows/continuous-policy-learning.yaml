@@ -1,0 +1,9 @@
+workflow:
+  id: continuous-policy-learning
+  cadence: weekly
+  steps:
+    - ingest_layer_metrics
+    - run_policy_search
+    - causal_evaluation
+    - safety_gate
+    - promote_or_rollback

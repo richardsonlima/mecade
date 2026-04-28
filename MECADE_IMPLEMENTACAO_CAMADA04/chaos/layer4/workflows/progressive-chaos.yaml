@@ -1,0 +1,12 @@
+workflow:
+  id: progressive-chaos-layer4
+  stages:
+    - name: canary
+      scope: 1_pod
+      proceed_if: safety_gate_pass
+    - name: limited_blast
+      scope: 10_percent
+      proceed_if: no_hard_abort
+    - name: controlled_expansion
+      scope: 25_percent
+      proceed_if: effect_within_expected_band

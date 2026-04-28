@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MECADEAuditEvent",
+  "type": "object",
+  "required": [
+    "event_id",
+    "parent_event_id",
+    "experiment_id",
+    "timestamp",
+    "layer",
+    "event_type",
+    "payload_hash",
+    "signature",
+    "trace_id"
+  ],
+  "properties": {
+    "event_id": {"type": "string"},
+    "parent_event_id": {"type": "string"},
+    "experiment_id": {"type": "string"},
+    "timestamp": {"type": "string"},
+    "layer": {"type": "string", "enum": ["L3", "L4", "L5", "L6", "L7"]},
+    "event_type": {"type": "string"},
+    "payload_hash": {"type": "string"},
+    "signature": {"type": "string"},
+    "trace_id": {"type": "string"}
+  }
+}

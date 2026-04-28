@@ -1,0 +1,13 @@
+groups:
+  - name: mecade-layer5
+    interval: 30s
+    rules:
+      - record: mecade:l5:up_targets
+        expr: count(up == 1)
+      - alert: Layer5ObservabilityLowCoverage
+        expr: mecade:l5:up_targets < 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Camada 5 sem alvos suficientes em observabilidade"

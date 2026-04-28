@@ -1,0 +1,10 @@
+{
+  "baseline_mttr": 120.0,
+  "stddev": 30.0,
+  "effect_pct": 0.15,
+  "alpha": 0.05,
+  "power": 0.8,
+  "effect_abs_seconds": 18.0,
+  "effect_size_d": 0.6,
+  "repetitions_per_group": 44
+}

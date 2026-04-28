@@ -1,0 +1,10 @@
+risk_prior:
+  financial:
+    p_critical_failure: 0.12
+    impact_weight: 0.9
+  aerospace:
+    p_critical_failure: 0.08
+    impact_weight: 1.0
+  infrastructure:
+    p_critical_failure: 0.15
+    impact_weight: 0.85

@@ -1,0 +1,13 @@
+faults:
+  - id: pod_delete
+    tool: litmus
+    layer: compute
+    expected_effect: short_availability_drop
+  - id: network_latency
+    tool: istio
+    layer: network
+    expected_effect: p99_drift_and_timeout
+  - id: cpu_hog
+    tool: chaos-mesh
+    layer: compute
+    expected_effect: queue_growth

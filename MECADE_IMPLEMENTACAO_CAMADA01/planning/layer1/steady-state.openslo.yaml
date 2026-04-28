@@ -1,0 +1,22 @@
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: checkout-steady-state
+spec:
+  service: checkout
+  indicators:
+    - name: availability
+      ratioMetric:
+        counter: http_requests_total{service="checkout",status!~"5.."}
+        total: http_requests_total{service="checkout"}
+    - name: p99_latency
+      thresholdMetric: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service="checkout"}[5m])) by (le))
+  objectives:
+    - displayName: availability_target
+      target: 0.995
+      timeWindow: 30d
+    - displayName: p99_latency_target
+      target: 0.300
+      operator: lte
+      unit: seconds
+      timeWindow: 5m

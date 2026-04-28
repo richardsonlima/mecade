@@ -1,0 +1,13 @@
+groups:
+  - name: mecade-layer7
+    interval: 30s
+    rules:
+      - record: mecade:l7:up_targets
+        expr: count(up == 1)
+      - alert: Layer7ObservabilityLowCoverage
+        expr: mecade:l7:up_targets < 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Camada 7 sem alvos suficientes em observabilidade"

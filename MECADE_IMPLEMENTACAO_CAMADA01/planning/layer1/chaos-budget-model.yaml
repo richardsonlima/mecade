@@ -1,0 +1,12 @@
+service: checkout
+window: 15m
+risk_aware_budget:
+  formula: "B = B0 * (1 - impact_weight * p_critical_failure)"
+  B0: 15.0
+  selected_domain: financial
+constraints:
+  max_error_rate_delta: 0.015
+  max_p99_latency_seconds: 0.450
+  max_unavailable_seconds: 60
+integral_limit:
+  max_accumulated_deviation: 12.0

@@ -1,0 +1,13 @@
+groups:
+  - name: mecade-layer6
+    interval: 30s
+    rules:
+      - record: mecade:l6:up_targets
+        expr: count(up == 1)
+      - alert: Layer6ObservabilityLowCoverage
+        expr: mecade:l6:up_targets < 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Camada 6 sem alvos suficientes em observabilidade"

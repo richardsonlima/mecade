@@ -1,0 +1,4 @@
+failure_mode,cause,pathway,observable_effect,severity,occurrence,detection,rpn,owner
+network_latency_800ms,mesh_delay_fault,checkout->payment->timeout,p99_up_and_tsr_down,9,6,4,216,platform
+retry_storm,retry_policy_misconfig,checkout->retry_loop,error_rate_up_without_outage,8,5,6,240,sre
+pod_kill_payment,node_pressure,payment->failover->recovery,short_unavailability,7,4,3,84,platform

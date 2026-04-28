@@ -1,0 +1,33 @@
+service: checkout
+metrics:
+  - id: availability
+    definition: "Proporcao de requisicoes bem-sucedidas"
+    formula: "sum(rate(http_requests_total{service=\"checkout\",status!~\"5..\"}[5m])) / sum(rate(http_requests_total{service=\"checkout\"}[5m]))"
+    unit: ratio
+    expected_range: [0.0, 1.0]
+    sampling_window: 5m
+    uncertainty: bootstrap_ci_95
+
+  - id: p99_latency_seconds
+    definition: "Latencia no percentil 99"
+    formula: "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service=\"checkout\"}[5m])) by (le))"
+    unit: seconds
+    expected_range: [0.0, 5.0]
+    sampling_window: 5m
+    uncertainty: block_bootstrap_ci_95
+
+  - id: mttr_seconds
+    definition: "Tempo medio para recuperar estado estacionario"
+    formula: "derived_from_incident_recovery_timeline"
+    unit: seconds
+    expected_range: [0.0, 3600.0]
+    sampling_window: per_incident
+    uncertainty: bootstrap_ci_95
+
+  - id: tsr
+    definition: "Taxa de sucesso de transacoes"
+    formula: "successful_transactions / total_transactions"
+    unit: ratio
+    expected_range: [0.0, 1.0]
+    sampling_window: 5m
+    uncertainty: bootstrap_ci_95

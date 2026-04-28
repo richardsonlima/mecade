@@ -1,0 +1,6 @@
+upgrade_gate:
+  approve_if:
+    - mttr_improvement_ratio >= 0.10
+    - false_block_rate <= 0.10
+    - safety_limit_violations == 0
+    - causal_confidence >= 0.95

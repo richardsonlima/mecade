@@ -1,0 +1,20 @@
+campaign_id: VIII-C-A1
+target_system: Google Online Boutique
+namespace: online-boutique
+minimum_repetitions_per_scenario: 10
+scenarios:
+  - latencia_induzida
+  - timeout_intermitente
+  - pod_kill
+arms:
+  - baseline_reativo
+  - mecade
+metrics:
+  - p95
+  - p99
+  - tsr
+  - mttr
+  - rto
+  - false_block_rate
+safety_envelope_ref: SE-2026-04
+chaos_budget_ref: CB-2026-04

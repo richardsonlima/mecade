@@ -1,0 +1,13 @@
+experiment: net-latency-800ms
+window: 10m
+primary_decision:
+  metric: mttr_seconds
+  require_ci95_below_zero_delta: true
+  minimum_effect_percent: 10
+safety_constraints:
+  - metric: availability
+    op: gte
+    value: 0.995
+  - metric: p99_latency_seconds
+    op: lte
+    value: 0.450
