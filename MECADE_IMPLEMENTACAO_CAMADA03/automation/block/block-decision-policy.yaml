@@ -1,0 +1,12 @@
+block_policy:
+  trigger_any:
+    - alert_name: MECADEBlockHardSafety
+    - posterior_risk_gte: 0.80
+  require_evidence:
+    - metric_signal
+    - trace_or_log_corroboration
+  actions:
+    - stop_fault_injection: true
+    - apply_safe_state_runbook: true
+  max_decision_latency_ms: 1500
+  audit_required: true

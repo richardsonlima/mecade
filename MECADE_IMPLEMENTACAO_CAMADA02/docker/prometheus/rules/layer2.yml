@@ -1,0 +1,15 @@
+groups:
+  - name: mecade-layer2
+    interval: 30s
+    rules:
+      - record: mecade:l2:up_targets
+        expr: count(up == 1)
+
+      - alert: Layer2ObservabilityLowCoverage
+        expr: mecade:l2:up_targets < 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Camada 2 sem alvos suficientes em observabilidade"
+          description: "Nenhum alvo de monitoramento ativo foi encontrado por mais de 2 minutos."

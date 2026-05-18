@@ -1,0 +1,169 @@
+services:
+  adservice:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/adservice:v0.10.2
+    container_name: mecade_campaign_viiic_adservice
+    environment:
+      - PORT=9555
+    restart: unless-stopped
+
+  cartservice:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/cartservice:v0.10.2
+    container_name: mecade_campaign_viiic_cartservice
+    environment:
+      - REDIS_ADDR=redis-cart:6379
+    depends_on:
+      - redis-cart
+    restart: unless-stopped
+
+  checkoutservice:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/checkoutservice:v0.10.2
+    container_name: mecade_campaign_viiic_checkoutservice
+    environment:
+      - PORT=5050
+      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:3550
+      - SHIPPING_SERVICE_ADDR=shippingservice:50051
+      - PAYMENT_SERVICE_ADDR=paymentservice:50051
+      - EMAIL_SERVICE_ADDR=emailservice:8080
+      - CURRENCY_SERVICE_ADDR=currencyservice:7000
+      - CART_SERVICE_ADDR=cartservice:7070
+    depends_on:
+      - cartservice
+      - currencyservice
+      - emailservice
+      - paymentservice
+      - productcatalogservice
+      - shippingservice
+    restart: unless-stopped
+
+  currencyservice:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/currencyservice:v0.10.2
+    container_name: mecade_campaign_viiic_currencyservice
+    environment:
+      - PORT=7000
+    restart: unless-stopped
+
+  emailservice:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/emailservice:v0.10.2
+    container_name: mecade_campaign_viiic_emailservice
+    environment:
+      - PORT=8080
+    restart: unless-stopped
+
+  paymentservice:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/paymentservice:v0.10.2
+    container_name: mecade_campaign_viiic_paymentservice
+    environment:
+      - PORT=50051
+    restart: unless-stopped
+
+  productcatalogservice:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/productcatalogservice:v0.10.2
+    container_name: mecade_campaign_viiic_productcatalogservice
+    environment:
+      - PORT=3550
+    restart: unless-stopped
+
+  recommendationservice:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/recommendationservice:v0.10.2
+    container_name: mecade_campaign_viiic_recommendationservice
+    environment:
+      - PORT=8080
+      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:3550
+    depends_on:
+      - productcatalogservice
+    restart: unless-stopped
+
+  redis-cart:
+    image: redis:7.2-alpine
+    container_name: mecade_campaign_viiic_redis_cart
+    restart: unless-stopped
+
+  shippingservice:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/shippingservice:v0.10.2
+    container_name: mecade_campaign_viiic_shippingservice
+    environment:
+      - PORT=50051
+    restart: unless-stopped
+
+  frontend:
+    image: us-central1-docker.pkg.dev/google-samples/microservices-demo/frontend:v0.10.2
+    container_name: mecade_campaign_viiic_frontend
+    environment:
+      - PORT=8080
+      - PRODUCT_CATALOG_SERVICE_ADDR=productcatalogservice:3550
+      - CURRENCY_SERVICE_ADDR=currencyservice:7000
+      - CART_SERVICE_ADDR=cartservice:7070
+      - RECOMMENDATION_SERVICE_ADDR=recommendationservice:8080
+      - SHIPPING_SERVICE_ADDR=shippingservice:50051
+      - CHECKOUT_SERVICE_ADDR=checkoutservice:5050
+      - AD_SERVICE_ADDR=adservice:9555
+    ports:
+      - "8088:8080"
+    depends_on:
+      - adservice
+      - cartservice
+      - checkoutservice
+      - currencyservice
+      - productcatalogservice
+      - recommendationservice
+      - shippingservice
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: mecade_campaign_viiic_prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-lifecycle
+    ports:
+      - "9790:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/prometheus/rules:/etc/prometheus/rules:ro
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.3
+    container_name: mecade_campaign_viiic_grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    ports:
+      - "3700:3000"
+    volumes:
+      - grafana-campaign-viiic-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.104.0
+    container_name: mecade_campaign_viiic_otel
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    ports:
+      - "9788:8888"
+    volumes:
+      - ./docker/otel/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    restart: unless-stopped
+
+  jupyter:
+    image: jupyter/scipy-notebook:python-3.11
+    container_name: mecade_campaign_viiic_jupyter
+    environment:
+      - JUPYTER_TOKEN=mecade
+    ports:
+      - "9498:8888"
+    volumes:
+      - ./campaign:/home/jovyan/work/campaign
+      - ./python:/home/jovyan/work/python
+      - ./evidencias-campanha-viii-c:/home/jovyan/work/evidencias-campanha-viii-c
+      - ./observability:/home/jovyan/work/observability
+    depends_on:
+      - frontend
+    restart: unless-stopped
+
+volumes:
+  grafana-campaign-viiic-data:

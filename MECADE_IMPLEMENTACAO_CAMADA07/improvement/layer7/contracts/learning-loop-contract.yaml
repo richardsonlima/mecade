@@ -1,0 +1,16 @@
+cadence: weekly
+inputs:
+  - layer3_detection_quality
+  - layer4_experiment_results
+  - layer5_release_decisions
+  - layer6_audit_proofs
+outputs:
+  - candidate_policy_version
+  - causal_effect_report
+  - promote_or_rollback_decision
+primary_objective:
+  minimize: mttr_seconds
+constraints:
+  - false_block_rate_lte: 0.10
+  - missed_gray_failure_rate_lte: 0.08
+  - safety_limit_violations_eq: 0

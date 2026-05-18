@@ -1,0 +1,18 @@
+version: 1
+service: checkout
+objectives:
+  - id: slo_availability_30d
+    sli: availability
+    target: 0.995
+    window: 30d
+    error_budget: 0.005
+
+  - id: slo_p99_5m
+    sli: p99_latency_seconds
+    target_lte: 0.300
+    window: 5m
+
+traceability:
+  business_goal:
+    - continuidade_operacional
+    - experiencia_usuario

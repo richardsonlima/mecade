@@ -1,0 +1,15 @@
+pattern_id: gray_failure_latency_drift
+window: 12m
+conditions:
+  - metric: p99_latency
+    trend: increasing
+    min_slope_per_minute: 0.01
+  - metric: error_rate
+    op: lte
+    value: 0.01
+  - metric: retry_rate
+    op: gte
+    value: 0.12
+decision:
+  emit_event: GRAY_FAILURE_SUSPECTED
+  confidence_min: 0.8

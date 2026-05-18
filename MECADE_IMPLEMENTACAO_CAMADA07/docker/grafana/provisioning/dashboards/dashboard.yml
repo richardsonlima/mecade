@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'MECADE Layer7 Dashboards'
+    orgId: 1
+    folder: 'MECADE Layer7'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

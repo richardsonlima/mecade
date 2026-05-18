@@ -1,0 +1,15 @@
+gate:
+  id: mecade_release_gate_v1
+  required_stages:
+    - build
+    - deploy_staging
+    - chaos_test
+    - slo_validation
+    - risk_scoring
+    - policy_gate
+decision:
+  mode: multiobjective
+  approve_if:
+    - slo_pass == true
+    - non_regression_pass == true
+    - risk_score <= 0.45

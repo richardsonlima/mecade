@@ -1,0 +1,36 @@
+groups:
+  - name: mecade-layer3-scientific
+    interval: 15s
+    rules:
+      - record: mecade:checkout:p99
+        expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{service="checkout"}[1m])) by (le))
+
+      - record: mecade:checkout:error_rate
+        expr: sum(rate(http_requests_total{service="checkout",status=~"5.."}[1m])) / sum(rate(http_requests_total{service="checkout"}[1m]))
+
+      - record: mecade:checkout:relative_deviation
+        expr: (mecade:checkout:p99 - 0.300) / 0.300
+
+      - record: mecade:checkout:accum_dev_10m
+        expr: sum_over_time(clamp_min(mecade:checkout:relative_deviation, 0)[10m:15s])
+
+      - alert: MECADEAlert
+        expr: mecade:checkout:relative_deviation > 0.20
+        for: 1m
+        labels:
+          severity: warning
+          mecade_axiom: ALERT
+
+      - alert: MECADELimit
+        expr: mecade:checkout:relative_deviation > 0.40 or mecade:checkout:accum_dev_10m > 8
+        for: 30s
+        labels:
+          severity: critical
+          mecade_axiom: LIMIT
+
+      - alert: MECADEBlockHardSafety
+        expr: mecade:checkout:p99 > 0.600 or mecade:checkout:error_rate > 0.030
+        for: 15s
+        labels:
+          severity: critical
+          mecade_axiom: BLOCK

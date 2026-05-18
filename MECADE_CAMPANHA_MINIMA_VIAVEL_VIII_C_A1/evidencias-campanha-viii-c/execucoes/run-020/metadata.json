@@ -1,0 +1,21 @@
+{
+  "run_id": "run-020",
+  "cenario": "timeout_intermitente",
+  "ordem_bracos": "A-B",
+  "workload": {
+    "rps": 200,
+    "duracao_seg": 900
+  },
+  "janelas": {
+    "warmup_seg": 180,
+    "injecao_seg": 300,
+    "recuperacao_seg": 420
+  },
+  "politica_mecade": {
+    "alert": "v1.2",
+    "limit": "v1.2",
+    "block": "v1.2"
+  },
+  "safety_envelope_ref": "SE-2026-04",
+  "chaos_budget_ref": "CB-2026-04"
+}

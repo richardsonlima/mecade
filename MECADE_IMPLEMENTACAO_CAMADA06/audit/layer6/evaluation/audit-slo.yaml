@@ -1,0 +1,7 @@
+slo:
+  ingestion_latency_p95_seconds: 2
+  completeness_ratio: 0.999
+  integrity_verification_success_ratio: 1.0
+alerts:
+  - id: audit_pipeline_delay
+    expr: audit_ingestion_latency_p95_seconds > 2

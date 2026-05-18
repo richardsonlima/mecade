@@ -1,0 +1,8 @@
+checks:
+  - id: min_replicas_ready
+    query: "k8s_deployment_ready_replicas{deployment='checkout'} >= 3"
+  - id: budget_available
+    query: "mecade_remaining_error_budget_ratio > 0.20"
+  - id: no_active_incident
+    query: "incident_open_critical == 0"
+on_fail: block_experiment

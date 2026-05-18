@@ -1,0 +1,17 @@
+policy_parameters:
+  alert_threshold:
+    min: 0.10
+    max: 0.35
+  limit_threshold:
+    min: 0.25
+    max: 0.60
+  accumulated_deviation_budget:
+    min: 4
+    max: 15
+  block_risk_cutoff:
+    min: 0.70
+    max: 0.95
+method:
+  optimizer: bayesian_optimization
+  max_trials_per_cycle: 25
+  objective: min_mttr_subject_to_safety_constraints

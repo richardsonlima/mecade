@@ -1,0 +1,16 @@
+nodes:
+  - ExperimentStarted
+  - AlertRaised
+  - LimitTriggered
+  - BlockExecuted
+  - RecoveryVerified
+edges:
+  - from: ExperimentStarted
+    to: AlertRaised
+  - from: AlertRaised
+    to: LimitTriggered
+  - from: LimitTriggered
+    to: BlockExecuted
+constraints:
+  - every_node_must_have_event_id
+  - graph_must_be_acyclic_per_experiment

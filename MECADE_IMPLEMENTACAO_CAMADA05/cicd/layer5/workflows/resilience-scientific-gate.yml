@@ -1,0 +1,13 @@
+name: resilience-scientific-gate
+on:
+  push:
+    branches: ["main"]
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compute risk score
+        run: python cicd/layer5/evaluation/compute_risk_score.py
+      - name: Policy gate
+        run: conftest test cicd/layer5/policies/input.json --policy cicd/layer5/policies

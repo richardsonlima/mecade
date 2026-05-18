@@ -1,0 +1,11 @@
+{
+  "campaign": "VIII-C-A1",
+  "generated_at_utc": "2026-04-28T01:21:51.477044+00:00",
+  "runs_analyzed": 30,
+  "mean_delta_mttr_seconds": 150.0,
+  "mean_delta_rto_seconds": 120.0,
+  "mean_delta_p99_ms": 80.0,
+  "mean_delta_tsr": 0.05,
+  "mean_false_block_rate_mecade": 0.04,
+  "favorable_for_a1": true
+}

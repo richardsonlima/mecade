@@ -1,0 +1,13 @@
+groups:
+  - name: mecade-campaign-viiic
+    interval: 30s
+    rules:
+      - record: mecade:campaign:viiic:up_targets
+        expr: count(up == 1)
+      - alert: CampaignVIIICObservabilityLowCoverage
+        expr: mecade:campaign:viiic:up_targets < 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Campanha VIII-C sem alvos suficientes em observabilidade"

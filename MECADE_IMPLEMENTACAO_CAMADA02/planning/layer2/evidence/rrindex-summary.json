@@ -1,0 +1,13 @@
+{
+  "weights": {
+    "w1": 0.35,
+    "w2": 0.25,
+    "w3": 0.25,
+    "w4": 0.15
+  },
+  "rrindex_min": 0.3911,
+  "rrindex_max": 0.9948,
+  "rrindex_last": 0.9948,
+  "rrindex_improvement": 0.6037,
+  "timeseries_file": "/Users/richardsonlima/Git/mecade/MECADE_IMPLEMENTACAO_CAMADA02/planning/layer2/evidence/rrindex-timeseries.csv"
+}

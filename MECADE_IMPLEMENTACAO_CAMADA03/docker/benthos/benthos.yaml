@@ -1,0 +1,17 @@
+http:
+  enabled: true
+  address: 0.0.0.0:4195
+
+input:
+  generate:
+    mapping: 'root = {"service":"checkout","event":"latency_probe","latency_ms":300 + (count("events") % 120),"retry_rate":0.12}'
+    interval: 5s
+
+pipeline:
+  processors:
+    - log:
+        level: INFO
+        message: "gray-failure-probe event generated"
+
+output:
+  drop: {}

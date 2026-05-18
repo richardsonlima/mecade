@@ -1,0 +1,13 @@
+offchain:
+  storage: s3
+  payload_uri_pattern: s3://mecade-audit/{experiment_id}/{event_id}.json
+  hash_algorithm: sha256
+onchain:
+  anchor:
+    ledger: immudb
+    fields:
+      - event_id
+      - payload_hash
+      - signature
+consistency_rule:
+  onchain_payload_hash_must_match_offchain

@@ -1,0 +1,52 @@
+services:
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: mecade_prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-lifecycle
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/prometheus/rules:/etc/prometheus/rules:ro
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.3
+    container_name: mecade_grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  pushgateway:
+    image: prom/pushgateway:v1.9.0
+    container_name: mecade_pushgateway
+    ports:
+      - "9091:9091"
+    restart: unless-stopped
+
+  jupyter:
+    image: jupyter/scipy-notebook:python-3.11
+    container_name: mecade_jupyter
+    environment:
+      - JUPYTER_TOKEN=mecade
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./planning:/home/jovyan/work/planning
+      - ./python:/home/jovyan/work/python
+      - ./notebooks:/home/jovyan/work/notebooks
+    restart: unless-stopped
+
+volumes:
+  grafana-data:

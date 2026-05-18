@@ -1,0 +1,19 @@
+scenario_id: S4_NET_LATENCY_PROGRESSIVE
+service_under_test: checkout
+hypothesis_ref: H1
+fault_model:
+  type: network_latency
+  target: checkout->payment
+  profile:
+    - step: 1
+      delay_ms: 150
+      duration_s: 120
+    - step: 2
+      delay_ms: 400
+      duration_s: 120
+    - step: 3
+      delay_ms: 800
+      duration_s: 120
+blast_radius:
+  namespace: shop
+  max_replicas_affected: 1

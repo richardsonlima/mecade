@@ -1,0 +1,128 @@
+services:
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: mecade_l3_prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-lifecycle
+    ports:
+      - "9290:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./docker/prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus-l3-data:/prometheus
+    depends_on:
+      - alertmanager
+      - loki
+      - tempo
+      - benthos
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: mecade_l3_alertmanager
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    ports:
+      - "9293:9093"
+    volumes:
+      - ./docker/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-l3-data:/alertmanager
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: mecade_l3_loki
+    command: ["-config.file=/etc/loki/config.yaml"]
+    ports:
+      - "9300:3100"
+    volumes:
+      - ./docker/loki/loki-config.yml:/etc/loki/config.yaml:ro
+      - loki-l3-data:/loki
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:2.5.0
+    container_name: mecade_l3_tempo
+    command: ["-config.file=/etc/tempo/tempo.yml"]
+    ports:
+      - "9301:3200"
+      - "4317:4317"
+    volumes:
+      - ./docker/tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo-l3-data:/tmp/tempo
+    restart: unless-stopped
+
+  benthos:
+    image: jeffail/benthos:4.30.0
+    container_name: mecade_l3_benthos
+    command: ["-c", "/benthos.yaml"]
+    ports:
+      - "4295:4195"
+    volumes:
+      - ./docker/benthos/benthos.yaml:/benthos.yaml:ro
+    restart: unless-stopped
+
+  argo-events:
+    image: quay.io/argoproj/argo-events:v1.9.2
+    container_name: mecade_l3_argo_events
+    command: ["version"]
+    restart: "no"
+
+  grafana:
+    image: grafana/grafana:11.1.3
+    container_name: mecade_l3_grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    ports:
+      - "3200:3000"
+    volumes:
+      - grafana-l3-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.104.0
+    container_name: mecade_l3_otel
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    ports:
+      - "9288:8888"
+    volumes:
+      - ./docker/otel/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    depends_on:
+      - loki
+      - tempo
+    restart: unless-stopped
+
+  jupyter:
+    image: jupyter/scipy-notebook:python-3.11
+    container_name: mecade_l3_jupyter
+    environment:
+      - JUPYTER_TOKEN=mecade
+    ports:
+      - "8998:8888"
+    volumes:
+      - ./planning:/home/jovyan/work/planning
+      - ./python:/home/jovyan/work/python
+      - ./notebooks:/home/jovyan/work/notebooks
+      - ./observability:/home/jovyan/work/observability
+      - ./chaos:/home/jovyan/work/chaos
+      - ./cicd:/home/jovyan/work/cicd
+      - ./audit:/home/jovyan/work/audit
+      - ./improvement:/home/jovyan/work/improvement
+    restart: unless-stopped
+
+volumes:
+  alertmanager-l3-data:
+  grafana-l3-data:
+  loki-l3-data:
+  prometheus-l3-data:
+  tempo-l3-data:

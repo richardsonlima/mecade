@@ -1,0 +1,13 @@
+must_have:
+  - steady_state_formalized
+  - fmea_causal_complete
+  - risk_prior_defined
+  - chaos_budget_risk_aware
+  - hypotheses_with_effect_size
+  - power_analysis_documented
+  - preregistration_done
+hard_fail_if:
+  - missing_any_must_have
+  - no_primary_metric
+  - no_statistical_decision_rule
+  - no_rollback_plan
