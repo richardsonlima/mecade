@@ -1,27 +1,41 @@
-# HOWTO: Camada 2 (Metrologia Cientifica de Objetivos e Indicadores) do MECADE
+# HOWTO: Camada 2 (Metrologia Científica de Objetivos e Indicadores) do MECADE
 
-Eu escrevi este guia como referencia E2E para implementar, testar e validar tecnicamente a Camada 2 com rigor metrologico e trilha de evidencia.
+Este guia é a referência E2E para implementar, testar e validar tecnicamente a Camada 2 com rigor metrológico e trilha de evidência.
 
-Stack open source recomendada:
+## Sumário
 
-- OpenTelemetry (instrumentacao semantica)
-- Prometheus + Thanos (coleta, historico e consulta)
-- Grafana (visualizacao e inspeção)
-- OpenSLO/Sloth (SLO as Code)
-- Great Expectations (qualidade de dados de telemetria)
-- Jupyter + Python (inferencia estatistica e analise de incerteza)
+- [Stack recomendada](#stack-recomendada)
+- [1. O que torna esta Camada 2 inovadora](#1-o-que-torna-esta-camada-2-inovadora)
+- [2. Entregas obrigatórias da Camada 2](#2-entregas-obrigatórias-da-camada-2)
+- [3. Implementação passo a passo](#3-implementação-passo-a-passo)
+- [4. Validação de fato da Camada 2](#4-validação-de-fato-da-camada-2)
+- [5. Comandos úteis](#5-comandos-úteis)
+- [6. Definição de pronto (Definition of Done)](#6-definição-de-pronto-definition-of-done)
+- [7. Erros comuns a evitar](#7-erros-comuns-a-evitar)
+- [8. Fechamento técnico](#8-fechamento-técnico)
+
+## Stack recomendada
+
+| Componente | Função na Camada 2 |
+|---|---|
+| OpenTelemetry | Instrumentação semântica |
+| Prometheus + Thanos | Coleta, histórico e consulta |
+| Grafana | Visualização e inspeção |
+| OpenSLO / Sloth | SLO as Code |
+| Great Expectations | Qualidade de dados de telemetria |
+| Jupyter + Python | Inferência estatística e análise de incerteza |
 
 ## 1. O que torna esta Camada 2 inovadora
 
-A inovacao nao e apenas medir P95/P99. E transformar telemetria em evidência científica:
+A inovação não é apenas medir P95/P99, e sim transformar telemetria em evidência científica:
 
-1. Metricas com definicao operacional + incerteza associada.
-2. SLI/SLO com rastreabilidade matematica e semantica.
+1. Métricas com definição operacional e incerteza associada.
+2. SLI/SLO com rastreabilidade matemática e semântica.
 3. Contrato de qualidade de dados observacionais antes de decidir.
-4. RRIndex metrologico como indicador agregado de maturidade.
-5. Decisao pass/fail baseada em efeito e confianca, nao so threshold fixo.
+4. RRIndex metrológico como indicador agregado de maturidade.
+5. Decisão *pass/fail* baseada em efeito e confiança, não apenas em *threshold* fixo.
 
-## 2. Entregas obrigatorias da Camada 2
+## 2. Entregas obrigatórias da Camada 2
 
 ```bash
 mkdir -p planning/layer2
@@ -30,23 +44,35 @@ mkdir -p planning/layer2/stats
 mkdir -p observability/dashboards
 ```
 
-Arquivos obrigatorios:
+Arquivos obrigatórios:
 
-- planning/layer2/metric-dictionary.yaml
-- planning/layer2/sli-slo-contract.yaml
-- planning/layer2/rrindex-definition.md
-- planning/layer2/data-quality/gx-suite.yaml
-- planning/layer2/stats/decision-rule.md
-- planning/layer2/validation-rules.yaml
-- observability/dashboards/layer2-scientific-overview.json
+| Artefato | Caminho |
+|---|---|
+| Dicionário metrológico | `planning/layer2/metric-dictionary.yaml` |
+| Contrato SLI/SLO | `planning/layer2/sli-slo-contract.yaml` |
+| Definição do RRIndex | `planning/layer2/rrindex-definition.md` |
+| Suíte de qualidade de dados | `planning/layer2/data-quality/gx-suite.yaml` |
+| Regra de decisão estatística | `planning/layer2/stats/decision-rule.md` |
+| Regras de validação | `planning/layer2/validation-rules.yaml` |
+| Dashboard científico | `observability/dashboards/layer2-scientific-overview.json` |
 
-Sem esses artefatos, a camada nao atende rigor metrologico.
+Sem esses artefatos, a camada não atende ao rigor metrológico.
 
-## 3. Implementacao passo a passo (formato banca)
+## 3. Implementação passo a passo
 
-### Passo 3.1 - Definir dicionario metrologico de metricas
+```mermaid
+flowchart TD
+    A["3.1 Dicionário\nmetrológico"] --> B["3.2 Contrato\nSLI/SLO"]
+    B --> C["3.3 Definição\ndo RRIndex"]
+    C --> D["3.4 Qualidade de dados\ncomo gate científico"]
+    D --> E["3.5 Regra estatística\nde decisão"]
+    E --> F["3.6 Regras pass/fail\npor experimento"]
+    F --> G["3.7 Dashboard\ncientífico"]
+```
 
-Exemplo em planning/layer2/metric-dictionary.yaml:
+### 3.1 Definir dicionário metrológico de métricas
+
+Exemplo em `planning/layer2/metric-dictionary.yaml`:
 
 ```yaml
 service: checkout
@@ -68,11 +94,11 @@ metrics:
     uncertainty: "block_bootstrap_ci_95"
 ```
 
-Diferencial: cada metrica tem unidade, faixa esperada e metodo de incerteza.
+Diferencial: cada métrica tem unidade, faixa esperada e método de incerteza.
 
-### Passo 3.2 - Formalizar contrato SLI/SLO
+### 3.2 Formalizar contrato SLI/SLO
 
-Exemplo em planning/layer2/sli-slo-contract.yaml:
+Exemplo em `planning/layer2/sli-slo-contract.yaml`:
 
 ```yaml
 version: 1
@@ -95,13 +121,13 @@ traceability:
     - experiencia_usuario
 ```
 
-Diferencial: conecta SLO tecnico a objetivo de negocio e budget de erro.
+Diferencial: conecta o SLO técnico a um objetivo de negócio e a um *error budget*.
 
-### Passo 3.3 - Definir RRIndex de forma reprodutivel
+### 3.3 Definir o RRIndex de forma reprodutível
 
-Exemplo em planning/layer2/rrindex-definition.md:
+Exemplo em `planning/layer2/rrindex-definition.md`:
 
-```md
+```text
 RRIndex = w1 * (1 - norm_mttr) + w2 * norm_availability + w3 * (1 - norm_p99) + w4 * norm_tsr
 
 Restricoes:
@@ -113,11 +139,11 @@ Saida:
 - RRIndex em [0,1], maior e melhor
 ```
 
-Diferencial: indice agregado com formula e restricoes explicitas.
+Diferencial: índice agregado com fórmula e restrições explícitas.
 
-### Passo 3.4 - Qualidade de dados como gate cientifico
+### 3.4 Qualidade de dados como gate científico
 
-Exemplo em planning/layer2/data-quality/gx-suite.yaml:
+Exemplo em `planning/layer2/data-quality/gx-suite.yaml`:
 
 ```yaml
 expectations:
@@ -136,13 +162,13 @@ expectations:
       column_B: window_start
 ```
 
-Sem qualidade minima, a inferencia e invalidada.
+Sem qualidade mínima, a inferência é invalidada.
 
-### Passo 3.5 - Definir regra estatistica de decisao
+### 3.5 Definir regra estatística de decisão
 
-Exemplo em planning/layer2/stats/decision-rule.md:
+Exemplo em `planning/layer2/stats/decision-rule.md`:
 
-```md
+```text
 Hipotese de melhoria operacional:
 - H0: delta_MTTR >= 0
 - H1: delta_MTTR < 0
@@ -153,11 +179,11 @@ Criterio de aprovacao:
 - nenhuma violacao critica simultanea de availability e p99
 ```
 
-Diferencial: decisao baseada em evidencia e efeito pratico.
+Diferencial: decisão baseada em evidência e efeito prático.
 
-### Passo 3.6 - Regras pass/fail por experimento
+### 3.6 Regras pass/fail por experimento
 
-Exemplo em planning/layer2/validation-rules.yaml:
+Exemplo em `planning/layer2/validation-rules.yaml`:
 
 ```yaml
 experiment: net-latency-800ms
@@ -175,40 +201,33 @@ safety_constraints:
     value: 0.450
 ```
 
-### Passo 3.7 - Dashboard cientifico
+### 3.7 Dashboard científico
 
-O dashboard da Camada 2 deve ter:
+O dashboard da Camada 2 deve conter:
 
-1. Serie temporal de metrica com banda de confianca.
-2. Valor pontual + intervalo de incerteza.
-3. Error budget burn rate.
-4. RRIndex por ciclo.
-5. Estado do contrato de qualidade de dados.
+| Painel | Conteúdo |
+|---|---|
+| Série temporal | Métrica com banda de confiança |
+| Valor pontual | Estimativa com intervalo de incerteza |
+| Error budget | *Burn rate* do orçamento de erro |
+| RRIndex | Evolução por ciclo |
+| Qualidade de dados | Estado do contrato de qualidade |
 
-## 4. Validacao de fato da Camada 2
+## 4. Validação de fato da Camada 2
 
-A Camada 2 esta validada quando indicadores sao mediveis, confiaveis e inferencialmente utilizaveis.
+A Camada 2 está validada quando os indicadores são mediáveis, confiáveis e inferencialmente utilizáveis.
 
-Checklist go/no-go:
+| # | Critério go/no-go | Condição de aprovação |
+|---|---|---|
+| 1 | Validade de constructo | Cada métrica possui definição operacional e unidade |
+| 2 | Qualidade observacional | O contrato de dados está aprovado antes da análise |
+| 3 | Rigor inferencial | A decisão usa intervalo de confiança e tamanho de efeito |
+| 4 | Reprodutibilidade | A mesma consulta e janela reproduzem resultados equivalentes |
+| 5 | Acionabilidade | As regras técnicas conectam objetivo de negócio e risco |
 
-1. Validade de constructo
-- Cada metrica possui definicao operacional e unidade.
+Se os 5 itens passarem, a Camada 2 está validada.
 
-2. Qualidade observacional
-- Contrato de dados aprovado antes da analise.
-
-3. Rigor inferencial
-- Decisao usa intervalo de confianca e tamanho de efeito.
-
-4. Reprodutibilidade
-- Mesma consulta e janela reproduzem resultados equivalentes.
-
-5. Acionabilidade
-- Regras tecnicas conectam objetivo de negocio e risco.
-
-Se os 5 itens passarem, a Camada 2 esta validada.
-
-## 5. Comandos uteis
+## 5. Comandos úteis
 
 ```bash
 # validar contrato SLO
@@ -224,24 +243,26 @@ curl -s http://localhost:9090/api/v1/query --data-urlencode 'query=sum(rate(http
 python planning/layer2/stats/run_inference.py
 ```
 
-## 6. Definicao de pronto (Definition of Done)
+## 6. Definição de pronto (Definition of Done)
 
-Camada 2 e considerada DONE quando:
+A Camada 2 é considerada `DONE` quando:
 
-- Dicionario metrologico e contrato SLI/SLO estao versionados.
-- RRIndex possui definicao formal e reproducivel.
-- Qualidade de dados e validada antes de decidir.
-- Regra de decisao estatistica esta predefinida.
-- Dashboard cientifico exibe incerteza, budget e maturidade.
+- O dicionário metrológico e o contrato SLI/SLO estão versionados.
+- O RRIndex possui definição formal e reprodutível.
+- A qualidade de dados é validada antes de decidir.
+- A regra de decisão estatística está predefinida.
+- O dashboard científico exibe incerteza, *budget* e maturidade.
 
-## 7.  Evitar erros comuns
+## 7. Erros comuns a evitar
 
-- Tratar metrica como numero absoluto sem incerteza.
-- Misturar unidade (ms/s) sem normalizacao documentada.
-- Decidir por threshold sem efeito estatistico.
-- Ignorar qualidade dos dados de telemetria.
-- Criar indice agregado sem formula explicita.
+| Erro | Consequência |
+|---|---|
+| Tratar métrica como número absoluto, sem incerteza | Conclusões não são estatisticamente defensáveis |
+| Misturar unidades (ms/s) sem normalização documentada | Comparações entre execuções tornam-se inválidas |
+| Decidir por *threshold* sem efeito estatístico | Decisão ignora variabilidade real do sistema |
+| Ignorar a qualidade dos dados de telemetria | Inferência baseada em dados corrompidos ou incompletos |
+| Criar índice agregado sem fórmula explícita | RRIndex perde reprodutibilidade e auditabilidade |
 
-## 8. Fechamento tecnico
+## 8. Fechamento técnico
 
-Nesta abordagem, a Camada 2 conecta metrica, qualidade de dados e inferencia estatistica para sustentar decisao operacional com base objetiva.
+Com esta abordagem, a Camada 2 conecta métrica, qualidade de dados e inferência estatística para sustentar a decisão operacional com base objetiva.

@@ -1,14 +1,16 @@
-# MECADE Camada 1 - Implementacao E2E
+# MECADE Camada 1 - Implementação E2E
 
-Este pacote implementa a Camada 1 (Planejamento Cientifico) do MECADE com artefatos obrigatorios, scripts de validacao e stack Docker para Linux/macOS.
+Este pacote implementa a Camada 1 (Planejamento Científico) do MECADE com artefatos obrigatórios, scripts de validação e *stack* Docker para Linux/macOS.
 
 ## Estrutura
 
-- `planning/layer1/`: artefatos obrigatorios da Camada 1
-- `python/`: scripts Python para geracao, validacao e analise
-- `scripts/`: scripts shell de instalacao e execucao E2E
-- `docker/`: configuracao do Prometheus/Grafana
-- `docker-compose.yml`: stack local para observabilidade e analise
+| Caminho | Conteúdo |
+|---|---|
+| `planning/layer1/` | Artefatos obrigatórios da Camada 1 |
+| `python/` | Scripts Python para geração, validação e análise |
+| `scripts/` | Scripts shell de instalação e execução E2E |
+| `docker/` | Configuração do Prometheus/Grafana |
+| `docker-compose.yml` | *Stack* local para observabilidade e análise |
 
 ## Requisitos
 
@@ -26,7 +28,7 @@ bash scripts/run-e2e.sh
 # bash scripts/run_e2e.sh
 ```
 
-## Subir stack Docker
+## Subir a stack Docker
 
 ```bash
 bash scripts/docker-up.sh
@@ -34,20 +36,20 @@ bash scripts/docker-up.sh
 
 ## Smoke test da stack
 
-Depois de subir os servicos, rode um unico comando para validar os endpoints principais:
+Depois de subir os serviços, rode um único comando para validar os endpoints principais:
 
 ```bash
 bash scripts/smoke-test.sh
 ```
 
-Endpoints locais:
+| Serviço | Endpoint |
+|---|---|
+| Prometheus | `http://localhost:9090` |
+| Grafana (admin/admin) | `http://localhost:3000` |
+| Jupyter Lab (token `mecade`) | `http://localhost:8888/lab?token=mecade` |
+| Pushgateway | `http://localhost:9091` |
 
-- Prometheus: http://localhost:9090
-- Grafana: http://localhost:3000 (admin/admin)
-- Jupyter Lab: http://localhost:8888/lab?token=mecade
-- Pushgateway: http://localhost:9091
-
-## Derrubar stack
+## Derrubar a stack
 
 ```bash
 bash scripts/docker-down.sh
@@ -55,18 +57,23 @@ bash scripts/docker-down.sh
 
 ## Fluxo E2E recomendado
 
-1. Gerar/atualizar artefatos base:
-   - `python python/generate_artifacts.py`
-2. Calcular budget por risco:
-   - `python python/compute_chaos_budget.py`
-3. Rodar analise de poder:
-   - `python python/power_analysis.py --baseline-mttr 120 --stddev 30 --effect-pct 0.15 --power 0.8 --alpha 0.05`
-4. Validar gate cientifico:
-   - `python python/validate_layer1.py`
-5. (Opcional) Coletar evidencias:
-   - `bash scripts/generate-evidence.sh`
+```mermaid
+flowchart LR
+    A["1. Gerar artefatos base\npython/generate_artifacts.py"] --> B["2. Calcular chaos budget\npython/compute_chaos_budget.py"]
+    B --> C["3. Análise de poder\npython/power_analysis.py"]
+    C --> D["4. Validar gate científico\npython/validate_layer1.py"]
+    D --> E["5. Coletar evidências\nscripts/generate-evidence.sh"]
+```
 
-## Observacoes
+| Etapa | Comando |
+|---|---|
+| 1. Gerar/atualizar artefatos base | `python python/generate_artifacts.py` |
+| 2. Calcular *budget* por risco | `python python/compute_chaos_budget.py` |
+| 3. Rodar análise de poder | `python python/power_analysis.py --baseline-mttr 120 --stddev 30 --effect-pct 0.15 --power 0.8 --alpha 0.05` |
+| 4. Validar gate científico | `python python/validate_layer1.py` |
+| 5. (Opcional) Coletar evidências | `bash scripts/generate-evidence.sh` |
 
-- Todos os arquivos obrigatorios da Camada 1 ja vem preenchidos para o cenario financeiro + microsservicos + Kubernetes.
-- Ajuste nomes de servico, SLIs, limiares e hipoteses para seu contexto.
+## Observações
+
+- Todos os arquivos obrigatórios da Camada 1 já vêm preenchidos para o cenário financeiro + microsserviços + Kubernetes.
+- Ajuste nomes de serviço, SLIs, limiares e hipóteses para o seu contexto.

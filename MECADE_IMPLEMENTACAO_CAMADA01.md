@@ -1,28 +1,42 @@
-# HOWTO: Camada 1 (Planejamento Cientifico) do MECADE
+# HOWTO: Camada 1 (Planejamento Científico) do MECADE
 
-Eu escrevi este guia como um roteiro E2E de implementacao, testes e validacao tecnica da Camada 1, com foco em reprodutibilidade e auditabilidade.
+Este guia descreve um roteiro E2E de implementação, testes e validação técnica da Camada 1, com foco em reprodutibilidade e auditabilidade.
 
-Stack open source recomendada para a Camada 1:
+## Sumário
 
-- OpenSLO (especificacao formal de objetivos)
-- Prometheus (medicao operacional)
-- Jupyter + Python (analise estatistica e poder amostral)
-- LitmusChaos (execucao posterior, somente apos gate da Camada 1)
-- Git + DVC (versionamento de protocolo e evidencias)
+- [Stack recomendada](#stack-recomendada)
+- [1. O que torna esta Camada 1 inovadora](#1-o-que-torna-esta-camada-1-inovadora)
+- [2. Entregas obrigatórias da Camada 1](#2-entregas-obrigatórias-da-camada-1)
+- [3. Implementação passo a passo](#3-implementação-passo-a-passo)
+- [4. Validação de fato da Camada 1](#4-validação-de-fato-da-camada-1)
+- [5. Comandos úteis](#5-comandos-úteis)
+- [6. Definição de pronto (Definition of Done)](#6-definição-de-pronto-definition-of-done)
+- [7. Erros comuns a evitar](#7-erros-comuns-a-evitar)
+- [8. Fechamento técnico](#8-fechamento-técnico)
+
+## Stack recomendada
+
+| Componente | Função na Camada 1 |
+|---|---|
+| OpenSLO | Especificação formal de objetivos (estado estacionário) |
+| Prometheus | Medição operacional |
+| Jupyter + Python | Análise estatística e poder amostral |
+| LitmusChaos | Execução posterior, somente após o *gate* da Camada 1 |
+| Git + DVC | Versionamento de protocolo e evidências |
 
 ## 1. O que torna esta Camada 1 inovadora
 
-A inovacao aqui nao e "usar ferramenta X". E transformar planejamento em artefato cientifico:
+A inovação aqui não é "usar a ferramenta X", e sim transformar o planejamento em artefato científico:
 
-1. Hipoteses causais explicitas com tamanho de efeito esperado.
-2. Chaos Budget derivado de risco e nao de numero arbitrario.
-3. Calibracao inicial por digital twin/simulacao antes de producao.
-4. Protocolo pre-registrado de experimento (antes de executar).
-5. Critério de decisao com confianca estatistica e risco residual.
+1. Hipóteses causais explícitas, com tamanho de efeito esperado.
+2. *Chaos budget* derivado de risco, e não de um número arbitrário.
+3. Calibração inicial por *digital twin*/simulação antes de produção.
+4. Protocolo pré-registrado de experimento (antes de executar).
+5. Critério de decisão com confiança estatística e risco residual.
 
-## 2. Entregas obrigatorias da Camada 1
+## 2. Entregas obrigatórias da Camada 1
 
-Crie os artefatos abaixo:
+Crie a estrutura de diretórios:
 
 ```bash
 mkdir -p planning/layer1
@@ -30,24 +44,37 @@ mkdir -p planning/layer1/prereg
 mkdir -p planning/layer1/evidence
 ```
 
-Arquivos obrigatorios:
+Arquivos obrigatórios:
 
-- planning/layer1/steady-state.openslo.yaml
-- planning/layer1/fmea-causal.csv
-- planning/layer1/risk-prior.yaml
-- planning/layer1/chaos-budget-model.yaml
-- planning/layer1/hypotheses-causal.md
-- planning/layer1/power-analysis.md
-- planning/layer1/prereg/experiment-protocol.md
-- planning/layer1/acceptance-gate.yaml
+| Artefato | Caminho |
+|---|---|
+| Estado estacionário (OpenSLO) | `planning/layer1/steady-state.openslo.yaml` |
+| FMEA causal | `planning/layer1/fmea-causal.csv` |
+| Prior de risco | `planning/layer1/risk-prior.yaml` |
+| Modelo de *chaos budget* | `planning/layer1/chaos-budget-model.yaml` |
+| Hipóteses causais | `planning/layer1/hypotheses-causal.md` |
+| Análise de poder amostral | `planning/layer1/power-analysis.md` |
+| Protocolo pré-registrado | `planning/layer1/prereg/experiment-protocol.md` |
+| Gate de aceite | `planning/layer1/acceptance-gate.yaml` |
 
-Sem esses arquivos, o experimento nao avanca.
+Sem esses artefatos, o experimento não avança.
 
-## 3. Implementacao passo a passo (formato banca)
+## 3. Implementação passo a passo
 
-### Passo 3.1 - Definir estado estacionario formal (OpenSLO)
+```mermaid
+flowchart TD
+    A["3.1 Estado estacionário\n(OpenSLO)"] --> B["3.2 FMEA causal"]
+    B --> C["3.3 Prior de risco"]
+    C --> D["3.4 Chaos budget\npor risco"]
+    D --> E["3.5 Hipóteses causais\ncom tamanho de efeito"]
+    E --> F["3.6 Análise de\npoder amostral"]
+    F --> G["3.7 Pré-registro\ndo protocolo"]
+    G --> H["3.8 Gate de aceite\ntécnico-científico"]
+```
 
-Exemplo minimo:
+### 3.1 Definir estado estacionário formal (OpenSLO)
+
+Exemplo mínimo:
 
 ```yaml
 apiVersion: openslo/v1
@@ -74,11 +101,11 @@ spec:
       timeWindow: 5m
 ```
 
-Resultado esperado: baseline formal, mensuravel e reproduzivel.
+Resultado esperado: baseline formal, mensurável e reproduzível.
 
-### Passo 3.2 - FMEA causal (nao apenas listagem)
+### 3.2 FMEA causal (não apenas listagem)
 
-Exemplo em planning/layer1/fmea-causal.csv:
+Exemplo em `planning/layer1/fmea-causal.csv`:
 
 ```csv
 failure_mode,cause,pathway,observable_effect,severity,occurrence,detection,rpn,owner
@@ -87,11 +114,11 @@ retry_storm,retry_policy_misconfig,checkout->retry_loop,error_rate_up_without_ou
 pod_kill_payment,node_pressure,payment->failover->recovery,short_unavailability,7,4,3,84,platform
 ```
 
-Diferencial: inclua pathway causal (causa -> propagacao -> efeito observado).
+Diferencial: cada linha inclui o *pathway* causal (causa → propagação → efeito observado).
 
-### Passo 3.3 - Definir prior de risco (Bayes simples)
+### 3.3 Definir prior de risco (Bayes simples)
 
-Exemplo em planning/layer1/risk-prior.yaml:
+Exemplo em `planning/layer1/risk-prior.yaml`:
 
 ```yaml
 risk_prior:
@@ -106,11 +133,11 @@ risk_prior:
     impact_weight: 0.85
 ```
 
-Uso: o budget e os limiares de aceitacao devem ser mais conservadores para maior impacto ponderado.
+Uso: o *budget* e os limiares de aceitação devem ser mais conservadores para domínios com maior impacto ponderado.
 
-### Passo 3.4 - Modelar Chaos Budget por risco
+### 3.4 Modelar Chaos Budget por risco
 
-Exemplo em planning/layer1/chaos-budget-model.yaml:
+Exemplo em `planning/layer1/chaos-budget-model.yaml`:
 
 ```yaml
 service: checkout
@@ -127,63 +154,63 @@ integral_limit:
   max_accumulated_deviation: 12.0
 ```
 
-Diferencial: budget justificado por modelo de risco explicito.
+Diferencial: o *budget* é justificado por um modelo de risco explícito.
 
-### Passo 3.5 - Escrever hipoteses causais com tamanho de efeito
+### 3.5 Escrever hipóteses causais com tamanho de efeito
 
-Exemplo em planning/layer1/hypotheses-causal.md:
+Exemplo em `planning/layer1/hypotheses-causal.md`:
 
-```md
+```markdown
 # H1 - Efeito esperado do mecanismo de bloqueio
 
-Intervencao: ativar controle ALERT/LIMIT/BLOCK durante falha de latencia progressiva.
+Intervenção: ativar o controle ALERT/LIMIT/BLOCK durante falha de latência progressiva.
 
-Hipotese causal:
-- O controle reduz MTTR em pelo menos 15% versus baseline reativo.
+Hipótese causal:
+- O controle reduz o MTTR em pelo menos 15% em relação ao baseline reativo.
 
-Metrica primaria:
+Métrica primária:
 - MTTR (s)
 
-Metricas secundarias:
+Métricas secundárias:
 - p99 latency, error_rate, TSR
 
-Criterio de sucesso:
-- delta_MTTR <= -15% com IC95% excluindo 0.
+Critério de sucesso:
+- delta_MTTR <= -15% com IC 95% excluindo zero.
 ```
 
-### Passo 3.6 - Fazer analise de poder amostral
+### 3.6 Fazer análise de poder amostral
 
-Em planning/layer1/power-analysis.md documente:
+Em `planning/layer1/power-analysis.md`, documente:
 
-1. Efeito minimo detectavel (ex.: 15% em MTTR).
-2. Poder estatistico alvo (>= 0.8).
-3. Nivel de significancia (alpha = 0.05).
-4. Numero minimo de repeticoes por cenario.
+1. Efeito mínimo detectável (ex.: 15% em MTTR).
+2. Poder estatístico alvo (>= 0.8).
+3. Nível de significância (alpha = 0.05).
+4. Número mínimo de repetições por cenário.
 
-Sem poder amostral, resultado vira demonstracao, nao evidencia.
+Sem poder amostral, o resultado é uma demonstração, não uma evidência.
 
-### Passo 3.7 - Pre-registrar protocolo
+### 3.7 Pré-registrar o protocolo
 
-Exemplo em planning/layer1/prereg/experiment-protocol.md:
+Exemplo em `planning/layer1/prereg/experiment-protocol.md`:
 
-```md
-# Pre-registro do experimento
+```markdown
+# Pré-registro do experimento
 
 - Pergunta de pesquisa
-- Hipoteses H1..Hn
-- Metricas primaria/secundarias
-- Cenarios de falha
-- Numero de repeticoes
-- Regras de exclusao de execucao invalida
-- Metodo estatistico
-- Criterio de aceite/rejeicao
+- Hipóteses H1..Hn
+- Métricas primária/secundárias
+- Cenários de falha
+- Número de repetições
+- Regras de exclusão de execução inválida
+- Método estatístico
+- Critério de aceite/rejeição
 ```
 
-Pre-registro reduz viés de confirmacao e fortalece defesa academica.
+Pré-registro reduz viés de confirmação e fortalece a defesa acadêmica.
 
-### Passo 3.8 - Definir gate de aceite tecnico-cientifico
+### 3.8 Definir gate de aceite técnico-científico
 
-Exemplo em planning/layer1/acceptance-gate.yaml:
+Exemplo em `planning/layer1/acceptance-gate.yaml`:
 
 ```yaml
 must_have:
@@ -201,60 +228,53 @@ hard_fail_if:
   - no_rollback_plan
 ```
 
-## 4. Validacao de fato da Camada 1
+## 4. Validação de fato da Camada 1
 
-A Camada 1 esta validada quando o planejamento permite inferencia causal minima, nao apenas checklist operacional.
+A Camada 1 está validada quando o planejamento permite inferência causal mínima, não apenas checklist operacional.
 
-Checklist go/no-go:
+| # | Critério go/no-go | Condição de aprovação |
+|---|---|---|
+| 1 | Constructo válido | Cada hipótese possui intervenção, mecanismo esperado e métrica primária |
+| 2 | Rigor estatístico | Existe poder amostral e regra de decisão pré-definida |
+| 3 | Risco explicitado | O *chaos budget* foi derivado por prior de risco e domínio |
+| 4 | Reprodutibilidade | O protocolo está pré-registrado e versionado |
+| 5 | Auditabilidade | As decisões de planejamento deixam trilha de evidência |
 
-1. Constructo valido
-- Cada hipotese possui intervencao, mecanismo esperado e metrica primaria.
+Se os 5 itens passarem, a Camada 1 está validada para execução.
 
-2. Rigor estatistico
-- Existe poder amostral e regra de decisao pre-definida.
-
-3. Risco explicitado
-- Chaos Budget foi derivado por prior de risco e dominio.
-
-4. Reprodutibilidade
-- Protocolo pre-registrado e versionado.
-
-5. Auditabilidade
-- Decisoes de planejamento deixam trilha de evidencia.
-
-Se os 5 itens passarem, a Camada 1 esta validada para execucao.
-
-## 5. Comandos uteis
+## 5. Comandos úteis
 
 ```bash
-# validar sintaxe dos artefatos yaml
+# validar sintaxe dos artefatos YAML
 yq e '.' planning/layer1/*.yaml > /dev/null
 
-# registrar evidencias de planejamento no dvc
+# registrar evidências de planejamento no DVC
 dvc add planning/layer1/evidence/
 
-# versionar protocolo pre-registrado
+# versionar protocolo pré-registrado
 git add planning/layer1/prereg/experiment-protocol.md
 ```
 
-## 6. Definicao de pronto (Definition of Done)
+## 6. Definição de pronto (Definition of Done)
 
-Considere Camada 1 DONE quando:
+Considere a Camada 1 `DONE` quando:
 
-- Hipoteses causais com efeito minimo detectavel estao definidas.
-- Budget e limiares tem justificativa de risco.
-- Plano estatistico esta documentado antes dos testes.
-- Gate cientifico foi executado e aprovado.
-- Ha aprovacao conjunta de SRE + orientacao metodologica.
+- Hipóteses causais com efeito mínimo detectável estão definidas.
+- *Budget* e limiares têm justificativa de risco.
+- O plano estatístico está documentado antes dos testes.
+- O *gate* científico foi executado e aprovado.
+- Há aprovação conjunta de SRE e orientação metodológica.
 
-## 7.  Evitar erros comuns
+## 7. Erros comuns a evitar
 
-- Definir hipotese sem tamanho de efeito.
-- Usar threshold por conveniencia sem racional de risco.
-- Rodar experimento sem pre-registro.
-- Reportar so media sem intervalo de confianca.
-- Chamar PoC de validacao robusta sem analise de poder.
+| Erro | Consequência |
+|---|---|
+| Definir hipótese sem tamanho de efeito | Resultado não é testável estatisticamente |
+| Usar *threshold* por conveniência, sem racional de risco | *Chaos budget* perde justificativa científica |
+| Rodar experimento sem pré-registro | Abre espaço para viés de confirmação |
+| Reportar apenas a média, sem intervalo de confiança | Conclusão não reflete incerteza real |
+| Tratar PoC como validação robusta, sem análise de poder | Conclusões não são generalizáveis |
 
-## 8. Fechamento tecnico
+## 8. Fechamento técnico
 
-Nesta abordagem, a Camada 1 deixa de ser checklist e vira base tecnica para execucao experimental com criterio, evidencia e decisao reproduzivel.
+Com esta abordagem, a Camada 1 deixa de ser um checklist e passa a ser a base técnica para a execução experimental com critério, evidência e decisão reprodutível.

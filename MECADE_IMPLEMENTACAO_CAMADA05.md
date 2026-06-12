@@ -1,27 +1,42 @@
-# HOWTO: Camada 5 (Governanca Cientifica de CI/CD e Resilience Gates) do MECADE
+# HOWTO: Camada 5 (Governança Científica de CI/CD e Resilience Gates) do MECADE
 
-Eu escrevi este guia como referencia E2E para implementar, testar e validar tecnicamente a governanca de release na Camada 5.
+Este guia é a referência E2E para implementar, testar e validar tecnicamente a governança de release na Camada 5.
 
-Stack open source recomendada:
+## Sumário
 
-- GitHub Actions ou GitLab CI (orquestracao de pipeline)
-- Argo CD (promocao GitOps deterministica)
-- Open Policy Agent + Conftest (governanca declarativa)
-- LitmusChaos/Chaos Mesh (fault tests no SDLC)
-- Prometheus + Thanos (consulta historica de SLO/SLI)
-- MLflow (rastreio de versao de policy e score de gate)
+- [Stack recomendada](#stack-recomendada)
+- [1. O que torna esta Camada 5 inovadora](#1-o-que-torna-esta-camada-5-inovadora)
+- [2. Entregas obrigatórias da Camada 5](#2-entregas-obrigatórias-da-camada-5)
+- [3. Implementação passo a passo](#3-implementação-passo-a-passo)
+- [4. Validação de fato da Camada 5](#4-validação-de-fato-da-camada-5)
+- [5. Protocolo de validação experimental](#5-protocolo-de-validação-experimental)
+- [6. Comandos úteis](#6-comandos-úteis)
+- [7. Definição de pronto (Definition of Done)](#7-definição-de-pronto-definition-of-done)
+- [8. Erros comuns a evitar](#8-erros-comuns-a-evitar)
+- [9. Fechamento técnico](#9-fechamento-técnico)
+
+## Stack recomendada
+
+| Componente | Função na Camada 5 |
+|---|---|
+| GitHub Actions ou GitLab CI | Orquestração de *pipeline* |
+| Argo CD | Promoção GitOps determinística |
+| Open Policy Agent + Conftest | Governança declarativa |
+| LitmusChaos/Chaos Mesh | *Fault tests* no SDLC |
+| Prometheus + Thanos | Consulta histórica de SLO/SLI |
+| MLflow | Rastreio de versão de política e *score* de gate |
 
 ## 1. O que torna esta Camada 5 inovadora
 
-A inovacao nao e apenas "rodar caos no pipeline". E fazer decisao de deploy orientada por evidencia:
+A inovação não é apenas "rodar caos no *pipeline*", e sim tomar decisão de *deploy* orientada por evidência:
 
-1. Gate multiobjetivo (desempenho + risco + custo de recuperacao).
-2. Politica de release com risco posterior explicito.
-3. Simulacao contrafactual de policy antes de enforce.
-4. Promocao baseada em criterio estatistico de nao regressao.
-5. Trilha de decisao auditavel (quem aprovou, com quais evidencias).
+1. *Gate* multiobjetivo (desempenho + risco + custo de recuperação).
+2. Política de release com risco posterior explícito.
+3. Simulação contrafactual de política antes do *enforce*.
+4. Promoção baseada em critério estatístico de não regressão.
+5. Trilha de decisão auditável (quem aprovou, com quais evidências).
 
-## 2. Entregas obrigatorias da Camada 5
+## 2. Entregas obrigatórias da Camada 5
 
 ```bash
 mkdir -p cicd/layer5
@@ -31,23 +46,35 @@ mkdir -p cicd/layer5/models
 mkdir -p cicd/layer5/evaluation
 ```
 
-Arquivos obrigatorios:
+Arquivos obrigatórios:
 
-- cicd/layer5/release-gate-contract.yaml
-- cicd/layer5/workflows/resilience-scientific-gate.yml
-- cicd/layer5/policies/release-governance.rego
-- cicd/layer5/models/risk-score-model.md
-- cicd/layer5/evaluation/non-regression-criteria.md
-- cicd/layer5/evaluation/policy-dryrun-protocol.md
-- cicd/layer5/validation-protocol.md
+| Artefato | Caminho |
+|---|---|
+| Contrato de gate científico | `cicd/layer5/release-gate-contract.yaml` |
+| Workflow do gate de resiliência | `cicd/layer5/workflows/resilience-scientific-gate.yml` |
+| Política declarativa de governança | `cicd/layer5/policies/release-governance.rego` |
+| Modelo de score de risco | `cicd/layer5/models/risk-score-model.md` |
+| Critério de não regressão | `cicd/layer5/evaluation/non-regression-criteria.md` |
+| Protocolo de *dry-run* de política | `cicd/layer5/evaluation/policy-dryrun-protocol.md` |
+| Protocolo de validação | `cicd/layer5/validation-protocol.md` |
 
-Sem esses artefatos, a camada nao sustenta decisao tecnicamente defensavel.
+Sem esses artefatos, a camada não sustenta uma decisão tecnicamente defensável.
 
-## 3. Implementacao passo a passo (formato banca)
+## 3. Implementação passo a passo
 
-### Passo 3.1 - Definir contrato de gate cientifico
+```mermaid
+flowchart TD
+    A["3.1 Contrato de\ngate científico"] --> B["3.2 Score de risco\nde release"]
+    B --> C["3.3 Pipeline com evidência\nde não regressão"]
+    C --> D["3.4 Critério de\nnão regressão"]
+    D --> E["3.5 Dry-run de política\n(contrafactual)"]
+    E --> F["3.6 Política declarativa\nde governança"]
+    F --> G["3.7 Promoção GitOps\ncondicionada"]
+```
 
-Exemplo em cicd/layer5/release-gate-contract.yaml:
+### 3.1 Definir contrato de gate científico
+
+Exemplo em `cicd/layer5/release-gate-contract.yaml`:
 
 ```yaml
 gate:
@@ -73,13 +100,13 @@ decision:
     - rollback_cost_estimate <= threshold
 ```
 
-Diferencial: gate explicita variaveis de decisao e criterio composto.
+Diferencial: o *gate* explicita as variáveis de decisão e o critério composto.
 
-### Passo 3.2 - Modelar score de risco de release
+### 3.2 Modelar score de risco de release
 
-Em cicd/layer5/models/risk-score-model.md:
+Em `cicd/layer5/models/risk-score-model.md`:
 
-```md
+```text
 RiskScore = w1*P(SLO_violation) + w2*P(recovery_delay) + w3*change_complexity + w4*dependency_instability
 
 Faixas:
@@ -88,11 +115,17 @@ Faixas:
 - > 0.45: bloquear release
 ```
 
-Diferencial: risco tratado como variavel quantitativa e não opinativa.
+| Faixa de RiskScore | Decisão |
+|---|---|
+| `<= 0.30` | Promoção automática (baixo risco) |
+| `0.31` a `0.45` | Promoção com dupla aprovação (risco moderado) |
+| `> 0.45` | Bloquear release |
 
-### Passo 3.3 - Pipeline com evidencia estatistica de nao regressao
+Diferencial: o risco é tratado como variável quantitativa, não opinativa.
 
-Exemplo em cicd/layer5/workflows/resilience-scientific-gate.yml:
+### 3.3 Pipeline com evidência estatística de não regressão
+
+Exemplo em `cicd/layer5/workflows/resilience-scientific-gate.yml`:
 
 ```yaml
 name: resilience-scientific-gate
@@ -121,11 +154,21 @@ jobs:
         run: conftest test cicd/layer5/release-gate-contract.yaml -p cicd/layer5/policies/
 ```
 
-### Passo 3.4 - Criterio de nao regressao
+```mermaid
+flowchart LR
+    A["Deploy staging"] --> B["Chaos campaign"]
+    B --> C["SLO e teste de\nnão regressão"]
+    C --> D["Risk scoring"]
+    D --> E{"Policy gate\naprovado?"}
+    E -- sim --> F["Promoção GitOps\n(Argo CD)"]
+    E -- não --> G["Release bloqueado"]
+```
 
-Exemplo em cicd/layer5/evaluation/non-regression-criteria.md:
+### 3.4 Critério de não regressão
 
-```md
+Exemplo em `cicd/layer5/evaluation/non-regression-criteria.md`:
+
+```text
 Metrica primaria: MTTR
 Metricas secundarias: availability, p99, error_rate
 
@@ -135,13 +178,13 @@ Aprovacao:
 - p99 nao excede limite operacional em janela de observacao
 ```
 
-Diferencial: deploy depende de evidência estatistica, nao apenas check binario.
+Diferencial: o *deploy* depende de evidência estatística, não apenas de um *check* binário.
 
-### Passo 3.5 - Dry-run de politica (contrafactual)
+### 3.5 Dry-run de política (contrafactual)
 
-Exemplo em cicd/layer5/evaluation/policy-dryrun-protocol.md:
+Exemplo em `cicd/layer5/evaluation/policy-dryrun-protocol.md`:
 
-```md
+```text
 Antes de promover nova politica de gate:
 1. Reexecutar historico de 30 releases em modo simulacao.
 2. Medir quantos releases seriam bloqueados/aprovados.
@@ -149,11 +192,11 @@ Antes de promover nova politica de gate:
 4. Aprovar somente se melhora o trade-off risco x throughput de entrega.
 ```
 
-Diferencial: politica e validada offline antes de afetar pipeline real.
+Diferencial: a política é validada *offline* antes de afetar o *pipeline* real.
 
-### Passo 3.6 - Politica declarativa de governanca
+### 3.6 Política declarativa de governança
 
-Exemplo em cicd/layer5/policies/release-governance.rego:
+Exemplo em `cicd/layer5/policies/release-governance.rego`:
 
 ```rego
 package mecade.release
@@ -169,63 +212,41 @@ deny[msg] {
 }
 ```
 
-### Passo 3.7 - Promocao GitOps condicionada
+### 3.7 Promoção GitOps condicionada
 
-Fluxo recomendado:
+| Etapa | Descrição |
+|---|---|
+| 1 | O *gate* científico aprova o release com evidências |
+| 2 | O *pipeline* gera um artefato de decisão (score, testes, hash da política) |
+| 3 | Somente então ocorre o *merge* para a branch de ambiente |
+| 4 | O Argo CD sincroniza a produção de forma determinística |
 
-1. Gate cientifico aprova release com evidencias.
-2. Pipeline gera artefato de decisao (score, testes, policy hash).
-3. Apenas entao ocorre merge para branch de ambiente.
-4. Argo CD sincroniza producao de forma deterministica.
+## 4. Validação de fato da Camada 5
 
-## 4. Validacao de fato da Camada 5
+A Camada 5 está validada quando o release é governado por evidência reprodutível, não por aprovação manual *ad hoc*.
 
-A Camada 5 esta validada quando release e governado por evidencia reprodutivel, nao por aprovacao manual ad hoc.
+| # | Critério go/no-go | Condição de aprovação |
+|---|---|---|
+| 1 | Validade de decisão | O *gate* usa variáveis mensuráveis e regra formal de aprovação |
+| 2 | Não regressão comprovada | O *pipeline* reprova releases com degradação estatisticamente relevante |
+| 3 | Política robusta | O *dry-run* mostra melhora de risco sem colapsar *throughput* |
+| 4 | Rastreabilidade | Cada decisão de release tem artefato de evidência e *hash* de política |
+| 5 | Reprodutibilidade | A reexecução dos mesmos insumos produz a mesma decisão |
 
-Checklist go/no-go:
+Se os 5 itens passarem, a Camada 5 está validada.
 
-1. Validade de decisao
-- Gate usa variaveis mensuraveis e regra formal de aprovacao.
+## 5. Protocolo de validação experimental
 
-2. Nao regressao comprovada
-- Pipeline reprova releases com degradacao estatisticamente relevante.
+Exemplo em `cicd/layer5/validation-protocol.md`:
 
-3. Politica robusta
-- Dry-run mostra melhora de risco sem colapsar throughput.
+| Cenário | Descrição | Critério de validação |
+|---|---|---|
+| A - Regressão controlada | Introduzir degradação pequena de p99 | Reprovação por não regressão |
+| B - Falso bloqueio | Simular ruído sem regressão real | Taxa de falso bloqueio abaixo do limite |
+| C - Dry-run de política nova | Executar política candidata em histórico de releases | Comparação A/B *offline* com a política atual |
+| D - Caminho feliz | Release sem violação, risco baixo e custo de *rollback* aceitável | Promoção automática por GitOps |
 
-4. Rastreabilidade
-- Cada decisao de release tem artefato de evidencia e hash de policy.
-
-5. Reprodutibilidade
-- Reexecucao dos mesmos insumos produz a mesma decisao.
-
-Se os 5 itens passarem, a Camada 5 esta validada.
-
-## 5. Protocolo de validacao experimental
-
-Exemplo em cicd/layer5/validation-protocol.md:
-
-```md
-# Protocolo de Validacao - Camada 5
-
-Cenario A - Regressao controlada:
-- introduzir degradacao pequena de p99
-- validar reprovação por nao regressao
-
-Cenario B - Falso bloqueio:
-- simular ruído sem regressao real
-- validar taxa de falso bloqueio abaixo do limite
-
-Cenario C - Dry-run de policy nova:
-- executar politica candidata em historico de releases
-- comparar com policy atual (abordagem A/B offline)
-
-Cenario D - Caminho feliz:
-- release sem violacao, risco baixo e custo de rollback aceitavel
-- validar promocao automatica por GitOps
-```
-
-## 6. Comandos uteis
+## 6. Comandos úteis
 
 ```bash
 # validar contrato e policy
@@ -244,24 +265,26 @@ gh workflow run resilience-scientific-gate.yml
 argocd app get checkout-prod
 ```
 
-## 7. Definicao de pronto (Definition of Done)
+## 7. Definição de pronto (Definition of Done)
 
-Camada 5 e considerada DONE quando:
+A Camada 5 é considerada `DONE` quando:
 
-- Contrato multiobjetivo de gate esta versionado.
-- Politica de governanca e validada por dry-run historico.
-- Nao regressao estatistica esta no caminho critico de release.
-- Risco de release e calculado e usado na decisao.
-- Promocao GitOps ocorre apenas apos gate cientifico aprovado.
+- O contrato multiobjetivo de *gate* está versionado.
+- A política de governança é validada por *dry-run* histórico.
+- A não regressão estatística está no caminho crítico de release.
+- O risco de release é calculado e usado na decisão.
+- A promoção GitOps ocorre apenas após o *gate* científico ser aprovado.
 
-## 8.  Evitar erros comuns
+## 8. Erros comuns a evitar
 
-- Tratar gate como checklist binario sem modelo de risco.
-- Aprovar release sem criterio de nao regressao estatistica.
-- Alterar policy sem validacao contrafactual (dry-run).
-- Nao registrar evidencia de decisao para auditoria.
-- Confundir velocidade de entrega com qualidade de decisao.
+| Erro | Consequência |
+|---|---|
+| Tratar o *gate* como checklist binário, sem modelo de risco | Decisão perde sensibilidade a variações relevantes |
+| Aprovar release sem critério de não regressão estatística | Degradações pequenas e reais passam despercebidas |
+| Alterar a política sem validação contrafactual (*dry-run*) | Mudanças podem aumentar bloqueios ou riscos sem aviso |
+| Não registrar evidência de decisão para auditoria | Decisão deixa de ser rastreável e defensável |
+| Confundir velocidade de entrega com qualidade de decisão | *Throughput* é otimizado às custas de segurança |
 
-## 9. Fechamento tecnico
+## 9. Fechamento técnico
 
-Nesta abordagem, a Camada 5 torna a decisao de release objetiva, rastreavel e reproduzivel, conectando risco, nao regressao e politica declarativa.
+Com esta abordagem, a Camada 5 torna a decisão de release objetiva, rastreável e reprodutível, conectando risco, não regressão e política declarativa.
