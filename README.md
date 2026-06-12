@@ -83,7 +83,7 @@ No estado atual, o MECADE apresenta prova de conceito em ambiente controlado. Os
 
 Permitir que equipes de engenharia validem resiliencia de forma reproduzivel, auditavel e governada por risco, sem sacrificar requisitos de operacao de sistemas criticos distribuidos.
 
-
+```bibtex
 @software{mecade,
   author       = {LIMA, Richardson Edson de},
   title        = {MECADE: A Chaos Engineering Model for Dependability Assurance Evaluation in Distributed Critical Systems},
@@ -91,3 +91,4 @@ Permitir que equipes de engenharia validem resiliencia de forma reproduzivel, au
   publisher    = {GitHub},
   url          = {https://github.com/Jeomon/macos-mcp](https://github.com/richardsonlima/mecade}
 }
+```
