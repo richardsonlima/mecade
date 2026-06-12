@@ -1,26 +1,40 @@
-# HOWTO: Camada 3 (Deteccao Cientifica e Decisao em Tempo Real) do MECADE
+# HOWTO: Camada 3 (Detecção Científica e Decisão em Tempo Real) do MECADE
 
-Eu escrevi este guia como passo a passo E2E para implementar, testar e validar tecnicamente a Camada 3 em tempo real.
+Este guia é o passo a passo E2E para implementar, testar e validar tecnicamente a Camada 3 em tempo real.
 
-Stack open source recomendada:
+## Sumário
 
-- Prometheus + PrometheusRule (deteccao em janela curta)
-- Alertmanager (roteamento deterministico e deduplicacao)
-- OpenTelemetry + Tempo + Loki (evidencia causal de suporte)
-- Flink CEP ou Benthos (deteccao de padrao temporal/gray failure)
-- Argo Events (acionamento formal de LIMIT/BLOCK)
+- [Stack recomendada](#stack-recomendada)
+- [1. O que torna esta Camada 3 inovadora](#1-o-que-torna-esta-camada-3-inovadora)
+- [2. Entregas obrigatórias da Camada 3](#2-entregas-obrigatórias-da-camada-3)
+- [3. Implementação passo a passo](#3-implementação-passo-a-passo)
+- [4. Validação de fato da Camada 3](#4-validação-de-fato-da-camada-3)
+- [5. Protocolo de validação experimental](#5-protocolo-de-validação-experimental)
+- [6. Comandos úteis](#6-comandos-úteis)
+- [7. Definição de pronto (Definition of Done)](#7-definição-de-pronto-definition-of-done)
+- [8. Fechamento técnico](#8-fechamento-técnico)
+
+## Stack recomendada
+
+| Componente | Função na Camada 3 |
+|---|---|
+| Prometheus + PrometheusRule | Detecção em janela curta |
+| Alertmanager | Roteamento determinístico e deduplicação |
+| OpenTelemetry + Tempo + Loki | Evidência causal de suporte |
+| Flink CEP ou Benthos | Detecção de padrão temporal (*gray failure*) |
+| Argo Events | Acionamento formal de `LIMIT`/`BLOCK` |
 
 ## 1. O que torna esta Camada 3 inovadora
 
-A inovacao da Camada 3 nao e apenas "alertar mais rapido". E transformar deteccao em mecanismo de inferencia operacional:
+A inovação da Camada 3 não é apenas "alertar mais rápido", e sim transformar detecção em mecanismo de inferência operacional:
 
-1. Deteccao em comite (metrica + log + trace), nao sinal unico.
-2. Limiar hibrido: limite duro de seguranca + sensibilidade adaptativa supervisionada.
-3. Captura de gray failure como fenomeno temporal, nao apenas pico instantaneo.
-4. Decisao baseada em risco posterior (likelihood x impacto), nao somente threshold.
-5. BLOCK acionado por criterio formal e auditavel com latencia medida.
+1. Detecção em comitê (métrica + log + trace), não sinal único.
+2. Limiar híbrido: limite duro de segurança + sensibilidade adaptativa supervisionada.
+3. Captura de *gray failure* como fenômeno temporal, não apenas pico instantâneo.
+4. Decisão baseada em risco posterior (*likelihood* × impacto), não somente *threshold*.
+5. `BLOCK` acionado por critério formal e auditável, com latência medida.
 
-## 2. Entregas obrigatorias da Camada 3
+## 2. Entregas obrigatórias da Camada 3
 
 ```bash
 mkdir -p planning/layer3
@@ -30,23 +44,34 @@ mkdir -p observability/patterns
 mkdir -p automation/block
 ```
 
-Arquivos obrigatorios:
+Arquivos obrigatórios:
 
-- planning/layer3/detection-contract.yaml
-- planning/layer3/models/risk-posterior-model.md
-- observability/rules/alert-limit-block.rules.yaml
-- observability/patterns/gray-failure-cep.yaml
-- planning/layer3/false-positive-negative-tracker.md
-- automation/block/block-decision-policy.yaml
-- planning/layer3/validation-protocol.md
+| Artefato | Caminho |
+|---|---|
+| Contrato de detecção | `planning/layer3/detection-contract.yaml` |
+| Modelo de risco posterior | `planning/layer3/models/risk-posterior-model.md` |
+| Regras ALERT/LIMIT/BLOCK | `observability/rules/alert-limit-block.rules.yaml` |
+| Padrão CEP de *gray failure* | `observability/patterns/gray-failure-cep.yaml` |
+| Tracker de falso positivo/negativo | `planning/layer3/false-positive-negative-tracker.md` |
+| Política formal de BLOCK | `automation/block/block-decision-policy.yaml` |
+| Protocolo de validação | `planning/layer3/validation-protocol.md` |
 
-Sem esses artefatos, a camada nao atende rigor de decisao critica.
+Sem esses artefatos, a camada não atende ao rigor de decisão crítica.
 
-## 3. Implementacao passo a passo (formato banca)
+## 3. Implementação passo a passo
 
-### Passo 3.1 - Definir contrato de deteccao
+```mermaid
+flowchart TD
+    A["3.1 Contrato\nde detecção"] --> B["3.2 Regras\nALERT/LIMIT/BLOCK"]
+    B --> C["3.3 Detector temporal\nde gray failure"]
+    C --> D["3.4 Modelo de\nrisco posterior"]
+    D --> E["3.5 Política formal\nde BLOCK"]
+    E --> F["3.6 Medição da\nqualidade da detecção"]
+```
 
-Exemplo em planning/layer3/detection-contract.yaml:
+### 3.1 Definir contrato de detecção
+
+Exemplo em `planning/layer3/detection-contract.yaml`:
 
 ```yaml
 service: checkout
@@ -67,11 +92,11 @@ required_evidence:
   - trace_or_log_corroboration
 ```
 
-Diferencial: separa explicitamente limite duro (inviolavel) de zona adaptativa.
+Diferencial: separa explicitamente o limite duro (inviolável) da zona adaptativa.
 
-### Passo 3.2 - Regras de ALERT/LIMIT/BLOCK com desvio acumulado
+### 3.2 Regras de ALERT/LIMIT/BLOCK com desvio acumulado
 
-Exemplo em observability/rules/alert-limit-block.rules.yaml:
+Exemplo em `observability/rules/alert-limit-block.rules.yaml`:
 
 ```yaml
 groups:
@@ -112,9 +137,9 @@ groups:
           mecade_axiom: BLOCK
 ```
 
-### Passo 3.3 - Definir detector temporal de gray failure
+### 3.3 Definir detector temporal de gray failure
 
-Exemplo em observability/patterns/gray-failure-cep.yaml:
+Exemplo em `observability/patterns/gray-failure-cep.yaml`:
 
 ```yaml
 pattern_id: gray_failure_latency_drift
@@ -134,13 +159,13 @@ decision:
   confidence_min: 0.8
 ```
 
-Diferencial: modela degradacao progressiva com padrao temporal, nao limiar isolado.
+Diferencial: modela degradação progressiva com padrão temporal, não limiar isolado.
 
-### Passo 3.4 - Modelo de risco posterior para decisao
+### 3.4 Modelo de risco posterior para decisão
 
-Em planning/layer3/models/risk-posterior-model.md documente:
+Em `planning/layer3/models/risk-posterior-model.md`, documente:
 
-```md
+```text
 PosteriorRisk = P(falha_critica | sinais) * ImpactoDominio
 
 Regra:
@@ -149,11 +174,11 @@ Regra:
 - BLOCK quando PosteriorRisk >= 0.80 ou hard_safety_limits violados
 ```
 
-Diferencial: decisao baseada em risco condicional e criticidade de dominio.
+Diferencial: decisão baseada em risco condicional e criticidade de domínio.
 
-### Passo 3.5 - Politica formal de BLOCK
+### 3.5 Política formal de BLOCK
 
-Exemplo em automation/block/block-decision-policy.yaml:
+Exemplo em `automation/block/block-decision-policy.yaml`:
 
 ```yaml
 block_policy:
@@ -170,66 +195,46 @@ block_policy:
   audit_required: true
 ```
 
-### Passo 3.6 - Medir qualidade da deteccao
+### 3.6 Medir qualidade da detecção
 
-Em planning/layer3/false-positive-negative-tracker.md registre por ciclo:
+Em `planning/layer3/false-positive-negative-tracker.md`, registre por ciclo:
 
-1. Precision e recall para eventos criticos.
-2. Taxa de falso positivo ALERT/LIMIT.
-3. Taxa de falso negativo em gray failure.
-4. Lead-time-to-failure (tempo entre ALERT e violacao LIMIT/BLOCK).
-5. Tempo de decisao (detectar -> acionar BLOCK).
+| Indicador | Descrição |
+|---|---|
+| Precision e recall | Para eventos críticos |
+| Taxa de falso positivo | ALERT/LIMIT |
+| Taxa de falso negativo | *Gray failure* |
+| *Lead-time-to-failure* | Tempo entre ALERT e violação LIMIT/BLOCK |
+| Tempo de decisão | Do momento da detecção até o acionamento de BLOCK |
 
-Sem isso, nao ha evidencia de superioridade da camada.
+Sem isso, não há evidência de superioridade da camada.
 
-## 4. Validacao de fato da Camada 3
+## 4. Validação de fato da Camada 3
 
-A camada esta validada quando detecta cedo, decide corretamente e bloqueia com baixa latencia sem explodir falsos positivos.
+A camada está validada quando detecta cedo, decide corretamente e bloqueia com baixa latência sem disparar excesso de falsos positivos.
 
-Checklist go/no-go:
+| # | Critério go/no-go | Condição de aprovação |
+|---|---|---|
+| 1 | Sensibilidade temporal | *Gray failure* detectado antes da violação crítica em >= 70% dos cenários |
+| 2 | Especificidade operacional | Falso positivo de LIMIT/BLOCK abaixo do limiar acordado (ex.: <= 10%) |
+| 3 | Latência de decisão | BLOCK acionado dentro da meta (ex.: <= 1.5s) após critério formal |
+| 4 | Robustez de evidência | ALERT/LIMIT com corroboração de ao menos dois sinais independentes |
+| 5 | Reprodutibilidade | Mesmos cenários produzem padrões de decisão equivalentes em repetições independentes |
 
-1. Sensibilidade temporal
-- Gray failure detectado antes de violacao critica em >= 70% dos cenarios.
+Se os 5 itens passarem, a Camada 3 está validada.
 
-2. Especificidade operacional
-- Falso positivo de LIMIT/BLOCK abaixo do limiar acordado (ex.: <= 10%).
+## 5. Protocolo de validação experimental
 
-3. Latencia de decisao
-- BLOCK acionado dentro da meta (ex.: <= 1.5s) apos criterio formal.
+Exemplo em `planning/layer3/validation-protocol.md`:
 
-4. Robustez de evidencia
-- ALERT/LIMIT com corroboracao de ao menos dois sinais independentes.
+| Cenário | Descrição | Critério de validação |
+|---|---|---|
+| A - Drift progressivo sem *outage* | Aumentar a latência em degraus a cada 2 minutos | Detecção de *gray failure* antes de 5xx massivo |
+| B - Ruído sem falha real | Injetar variabilidade controlada de curta duração | LIMIT/BLOCK não disparam indevidamente |
+| C - Hard safety | Violar o limite duro de p99/error_rate | BLOCK no tempo alvo e transição para estado seguro |
+| D - *Ablation* de sinais | Remover log/trace e repetir o cenário | Medir a degradação da qualidade de decisão do comitê |
 
-5. Reprodutibilidade
-- Mesmos cenarios produzem padroes de decisao equivalentes em repeticoes independentes.
-
-Se os 5 itens passarem, a Camada 3 esta validada.
-
-## 5. Protocolo de validacao experimental
-
-Exemplo em planning/layer3/validation-protocol.md:
-
-```md
-# Protocolo de Validacao - Camada 3
-
-Cenario A - Drift progressivo sem outage:
-- aumentar latencia em degraus a cada 2 minutos
-- validar deteccao de gray failure antes de 5xx massivo
-
-Cenario B - Ruido sem falha real:
-- injetar variabilidade controlada de curta duracao
-- validar que LIMIT/BLOCK nao disparam indevidamente
-
-Cenario C - Hard safety:
-- violar limite duro de p99/error_rate
-- validar BLOCK em tempo alvo e transicao para estado seguro
-
-Cenario D - Ablacao de sinais:
-- remover log/trace e repetir cenario
-- medir degradacao da qualidade de decisao do comite
-```
-
-## 6. Comandos uteis
+## 6. Comandos úteis
 
 ```bash
 # aplicar regras cientificas
@@ -246,16 +251,16 @@ kubectl -n argo-events get sensors
 kubectl -n argo get workflows
 ```
 
-## 7. Definicao de pronto (Definition of Done)
+## 7. Definição de pronto (Definition of Done)
 
-Camada 3 e considerada DONE quando:
+A Camada 3 é considerada `DONE` quando:
 
-- Contrato de deteccao (limite duro + zona adaptativa) esta versionado.
-- Detector de gray failure temporal esta ativo e validado.
-- BLOCK possui politica formal com latencia alvo e auditoria.
-- Qualidade da deteccao (precision/recall/falso positivo) esta medida.
-- Resultados sao reproduziveis em multiplas repeticoes.
+- O contrato de detecção (limite duro + zona adaptativa) está versionado.
+- O detector de *gray failure* temporal está ativo e validado.
+- `BLOCK` possui política formal com latência alvo e auditoria.
+- A qualidade da detecção (precision/recall/falso positivo) está medida.
+- Os resultados são reprodutíveis em múltiplas repetições.
 
-## 8. Fechamento tecnico
+## 8. Fechamento técnico
 
-Nesta abordagem, a Camada 3 transforma deteccao em decisao operacional formal, com criterio de risco, latencia alvo e evidencia auditavel.
+Com esta abordagem, a Camada 3 transforma detecção em decisão operacional formal, com critério de risco, latência alvo e evidência auditável.

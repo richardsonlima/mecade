@@ -1,207 +1,242 @@
-# OVERVIEW DO FRAMEWORK MECADE (MEDADE)
+1111111111111111
 
-Este documento apresenta uma visao integrada do framework proposto, conectando as 7 camadas em um fluxo unico, com diagramas em varios niveis para facilitar entendimento tecnico, academico e de banca.
 
-## 1. Visao geral em uma frase
+# Overview do Framework MECADE
 
-O MECADE e um ciclo cibernetico de dependabilidade que transforma: planejamento cientifico -> medicao robusta -> deteccao inteligente -> execucao controlada -> governanca de release -> auditoria verificavel -> aprendizado causal continuo.
+Este documento apresenta uma visão integrada do framework MECADE, conectando as 7 camadas em um fluxo único, com diagramas em múltiplos níveis de abstração para facilitar o entendimento técnico, acadêmico e de banca examinadora.
 
-## 2. Mapa rapido das camadas
+## Sumário
 
-| Camada | Nome | Pergunta central | Saida principal |
+- [1. Visão geral em uma frase](#1-visão-geral-em-uma-frase)
+- [2. Mapa rápido das camadas](#2-mapa-rápido-das-camadas)
+- [3. Diagrama de contexto (nível executivo)](#3-diagrama-de-contexto-nível-executivo)
+- [4. Diagrama macro das 7 camadas (nível arquitetural)](#4-diagrama-macro-das-7-camadas-nível-arquitetural)
+- [5. Fluxo ponta a ponta de artefatos (nível operacional)](#5-fluxo-ponta-a-ponta-de-artefatos-nível-operacional)
+- [6. Fluxo de dados e controle (nível engenharia)](#6-fluxo-de-dados-e-controle-nível-engenharia)
+- [7. Sequência temporal de uma campanha (nível processo)](#7-sequência-temporal-de-uma-campanha-nível-processo)
+- [8. Máquina de estados do ciclo de decisão](#8-máquina-de-estados-do-ciclo-de-decisão)
+- [9. Árvore de decisão para release](#9-árvore-de-decisão-para-release)
+- [10. Níveis de evidência](#10-níveis-de-evidência)
+- [11. Integração entre camadas](#11-integração-entre-camadas)
+- [12. Diferencial do modelo proposto](#12-diferencial-do-modelo-proposto)
+- [13. Checklist de apresentação](#13-checklist-de-apresentação)
+
+---
+
+## 1. Visão geral em uma frase
+
+O MECADE é um ciclo cibernético de dependabilidade que transforma:
+
+> planejamento científico → medição robusta → detecção inteligente → execução controlada → governança de release → auditoria verificável → aprendizado causal contínuo
+
+## 2. Mapa rápido das camadas
+
+| Camada | Nome | Pergunta central | Saída principal |
 |---|---|---|---|
-| 1 | Planejamento Cientifico | O que testar e com qual rigor? | Hipoteses causais + Chaos Budget por risco |
-| 2 | Metrologia Cientifica | Como medir com validade e incerteza? | SLI/SLO formal + RRIndex + regras de decisao |
-| 3 | Deteccao Cientifica | Quando agir e com qual evidencia? | ALERT/LIMIT/BLOCK com risco posterior |
-| 4 | Execucao Experimental | Como injetar falha com seguranca e causalidade? | Campanhas progressivas + ablation + efeito |
-| 5 | Governanca de CI/CD | Quando promover release com evidencia? | Release gate multiobjetivo e auditavel |
-| 6 | Auditoria Cientifica | Como provar integridade e proveniencia? | Prova criptografica off-chain/on-chain |
-| 7 | Aprendizado Causal | Como evoluir politica sem regressao? | Upgrade/rollback de politica com efeito causal |
+| 1 | Planejamento Científico | O que testar e com qual rigor? | Hipóteses causais e *chaos budget* por risco |
+| 2 | Metrologia Científica | Como medir com validade e incerteza? | SLI/SLO formal, RRIndex e regras de decisão |
+| 3 | Detecção Científica | Quando agir e com qual evidência? | ALERT/LIMIT/BLOCK com risco posterior |
+| 4 | Execução Experimental | Como injetar falha com segurança e causalidade? | Campanhas progressivas, *ablation* e estimativa de efeito |
+| 5 | Governança de CI/CD | Quando promover release com evidência? | *Release gate* multiobjetivo e auditável |
+| 6 | Auditoria Científica | Como provar integridade e proveniência? | Prova criptográfica off-chain/on-chain |
+| 7 | Aprendizado Causal | Como evoluir política sem regressão? | *Upgrade*/*rollback* de política com efeito causal |
 
-## 3. Diagrama de contexto (nivel executivo)
-
-```mermaid
-flowchart LR
-  A[Ambiente Distribuido Critico] --> B[MECADE]
-  B --> C[Resiliencia Operacional]
-  B --> D[Conformidade e Auditoria]
-  B --> E[Evolucao Continua de Politicas]
-```
-
-## 4. Diagrama macro das 7 camadas (nivel arquitetural)
-
-```mermaid
-flowchart TB
-  L1[Camada 1<br/>Planejamento Cientifico]
-  L2[Camada 2<br/>Metrologia Cientifica]
-  L3[Camada 3<br/>Deteccao Cientifica]
-  L4[Camada 4<br/>Execucao Experimental]
-  L5[Camada 5<br/>Governanca CI/CD]
-  L6[Camada 6<br/>Auditoria Cientifica]
-  L7[Camada 7<br/>Aprendizado Causal]
-
-  L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
-  L7 -. Feedback de politica e risco .-> L1
-```
-
-## 5. Fluxo ponta a ponta de artefatos (nivel operacional)
+## 3. Diagrama de contexto (nível executivo)
 
 ```mermaid
 flowchart LR
-  A1[Hipoteses + Budget + Pre-registro<br/>Camada 1]
-  A2[SLI/SLO + RRIndex + Qualidade de dados<br/>Camada 2]
-  A3[Alertas e risco posterior<br/>Camada 3]
-  A4[Falhas controladas + ablation<br/>Camada 4]
-  A5[Gate de release multiobjetivo<br/>Camada 5]
-  A6[Prova criptografica e grafo de evidencias<br/>Camada 6]
-  A7[Tuning de politica com causalidade<br/>Camada 7]
-
-  A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A1
+    A[Ambiente Distribuído Crítico] --> B[MECADE]
+    B --> C[Resiliência Operacional]
+    B --> D[Conformidade e Auditoria]
+    B --> E[Evolução Contínua de Políticas]
 ```
 
-## 6. Fluxo de dados e controle (nivel engenharia)
+## 4. Diagrama macro das 7 camadas (nível arquitetural)
 
 ```mermaid
 flowchart TB
-  subgraph Observabilidade
-    M[Metricas]
-    T[Traces]
-    G[Logs]
-  end
+    L1["Camada 1\nPlanejamento Científico"]
+    L2["Camada 2\nMetrologia Científica"]
+    L3["Camada 3\nDetecção Científica"]
+    L4["Camada 4\nExecução Experimental"]
+    L5["Camada 5\nGovernança de CI/CD"]
+    L6["Camada 6\nAuditoria Científica"]
+    L7["Camada 7\nAprendizado Causal"]
 
-  subgraph Decisao
-    D1[Detector ALERT/LIMIT]
-    D2[Risco Posterior]
-    D3[Politica BLOCK]
-  end
-
-  subgraph Execucao
-    X1[Fault Runner]
-    X2[Rollback Safe State]
-  end
-
-  subgraph Auditoria
-    O1[Store Off-chain]
-    O2[Prova On-chain]
-  end
-
-  subgraph Aprendizado
-    P1[Dataset Historico]
-    P2[Otimizacao de Politica]
-    P3[Promover ou Reverter]
-  end
-
-  M --> D1
-  T --> D1
-  G --> D1
-  D1 --> D2 --> D3 --> X1
-  X1 --> X2
-  X1 --> O1 --> O2
-  O2 --> P1
-  M --> P1
-  P1 --> P2 --> P3
-  P3 -. Atualiza thresholds .-> D1
+    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
+    L7 -. "feedback de política e risco" .-> L1
 ```
 
-## 7. Sequencia temporal de uma campanha (nivel processo)
+## 5. Fluxo ponta a ponta de artefatos (nível operacional)
+
+```mermaid
+flowchart LR
+    A1["Hipóteses, budget e pré-registro\nCamada 1"]
+    A2["SLI/SLO, RRIndex e qualidade de dados\nCamada 2"]
+    A3["Alertas e risco posterior\nCamada 3"]
+    A4["Falhas controladas e ablation\nCamada 4"]
+    A5["Gate de release multiobjetivo\nCamada 5"]
+    A6["Prova criptográfica e grafo de evidências\nCamada 6"]
+    A7["Tuning de política com causalidade\nCamada 7"]
+
+    A1 --> A2 --> A3 --> A4 --> A5 --> A6 --> A7 --> A1
+```
+
+## 6. Fluxo de dados e controle (nível engenharia)
+
+```mermaid
+flowchart TB
+    subgraph Observabilidade
+        M[Métricas]
+        T[Traces]
+        G[Logs]
+    end
+
+    subgraph Decisao["Decisão"]
+        D1["Detector ALERT/LIMIT"]
+        D2["Risco Posterior"]
+        D3["Política BLOCK"]
+    end
+
+    subgraph Execucao["Execução"]
+        X1["Fault Runner"]
+        X2["Rollback para Estado Seguro"]
+    end
+
+    subgraph Auditoria
+        O1["Store Off-chain"]
+        O2["Prova On-chain"]
+    end
+
+    subgraph Aprendizado
+        P1["Dataset Histórico"]
+        P2["Otimização de Política"]
+        P3["Promover ou Reverter"]
+    end
+
+    M --> D1
+    T --> D1
+    G --> D1
+    D1 --> D2 --> D3 --> X1
+    X1 --> X2
+    X1 --> O1 --> O2
+    O2 --> P1
+    M --> P1
+    P1 --> P2 --> P3
+    P3 -. "atualiza thresholds" .-> D1
+```
+
+## 7. Sequência temporal de uma campanha (nível processo)
 
 ```mermaid
 sequenceDiagram
-  participant C1 as Camada 1
-  participant C2 as Camada 2
-  participant C3 as Camada 3
-  participant C4 as Camada 4
-  participant C5 as Camada 5
-  participant C6 as Camada 6
-  participant C7 as Camada 7
+    participant C1 as Camada 1
+    participant C2 as Camada 2
+    participant C3 as Camada 3
+    participant C4 as Camada 4
+    participant C5 as Camada 5
+    participant C6 as Camada 6
+    participant C7 as Camada 7
 
-  C1->>C2: Entrega baseline, hipoteses e budget
-  C2->>C3: Entrega metricas, SLO e regra estatistica
-  C3->>C4: Entrega ALERT/LIMIT/BLOCK com risco
-  C4->>C5: Entrega resultados de experimento
-  C5->>C6: Entrega decisao de release e evidencias
-  C6->>C7: Entrega prova de integridade e proveniencia
-  C7->>C1: Entrega policy refinada e novo plano
+    C1->>C2: Entrega baseline, hipóteses e budget
+    C2->>C3: Entrega métricas, SLO e regra estatística
+    C3->>C4: Entrega ALERT/LIMIT/BLOCK com risco
+    C4->>C5: Entrega resultados de experimento
+    C5->>C6: Entrega decisão de release e evidências
+    C6->>C7: Entrega prova de integridade e proveniência
+    C7->>C1: Entrega política refinada e novo plano
 ```
 
-## 8. Maquina de estados do ciclo de decisao
+## 8. Máquina de estados do ciclo de decisão
 
 ```mermaid
 stateDiagram-v2
-  [*] --> Planejar
-  Planejar --> Medir
-  Medir --> Detectar
-  Detectar --> Executar
-  Executar --> Gate
-  Gate --> Auditar
-  Auditar --> Aprender
-  Aprender --> Planejar
+    [*] --> Planejar
+    Planejar --> Medir
+    Medir --> Detectar
+    Detectar --> Executar
+    Executar --> Gate
+    Gate --> Auditar
+    Auditar --> Aprender
+    Aprender --> Planejar
 
-  Detectar --> Bloquear: risco alto ou limite duro
-  Bloquear --> Auditar
+    Detectar --> Bloquear: risco alto ou limite duro
+    Bloquear --> Auditar
 ```
 
-## 9. Arvore de decisao para release
+## 9. Árvore de decisão para release
 
 ```mermaid
 flowchart TD
-  Q1{SLO passou?}
-  Q2{Nao regressao estatistica?}
-  Q3{Risk score <= limite?}
-  Q4{Seguranca preservada?}
-  OK[Promover release]
-  NO[Bloquear e abrir rollback]
+    Q1{"SLO passou?"}
+    Q2{"Sem regressão estatística?"}
+    Q3{"Risk score <= limite?"}
+    Q4{"Segurança preservada?"}
+    OK["Promover release"]
+    NO["Bloquear e abrir rollback"]
 
-  Q1 -- Nao --> NO
-  Q1 -- Sim --> Q2
-  Q2 -- Nao --> NO
-  Q2 -- Sim --> Q3
-  Q3 -- Nao --> NO
-  Q3 -- Sim --> Q4
-  Q4 -- Nao --> NO
-  Q4 -- Sim --> OK
+    Q1 -- "Não" --> NO
+    Q1 -- "Sim" --> Q2
+    Q2 -- "Não" --> NO
+    Q2 -- "Sim" --> Q3
+    Q3 -- "Não" --> NO
+    Q3 -- "Sim" --> Q4
+    Q4 -- "Não" --> NO
+    Q4 -- "Sim" --> OK
 ```
 
-## 10. Diagrama de niveis de evidencia
+## 10. Níveis de evidência
 
 ```mermaid
 flowchart LR
-  E1[Nivel 1<br/>Observacao]
-  E2[Nivel 2<br/>Reproducao]
-  E3[Nivel 3<br/>Efeito Estatistico]
-  E4[Nivel 4<br/>Efeito Causal]
-  E5[Nivel 5<br/>Governanca Auditavel]
+    E1["Nível 1\nObservação"]
+    E2["Nível 2\nReprodução"]
+    E3["Nível 3\nEfeito Estatístico"]
+    E4["Nível 4\nEfeito Causal"]
+    E5["Nível 5\nGovernança Auditável"]
 
-  E1 --> E2 --> E3 --> E4 --> E5
+    E1 --> E2 --> E3 --> E4 --> E5
 ```
 
-## 11. Como as camadas se interligam na pratica
+| Nível | Designação | Critério de aceitação |
+|---|---|---|
+| 1 | Observação | Fenômeno registrado em pelo menos uma execução |
+| 2 | Reprodução | Fenômeno reproduzido em execuções independentes |
+| 3 | Efeito estatístico | Diferença significativa frente a um grupo de controle |
+| 4 | Efeito causal | Efeito estimado por inferência causal (ex.: *ablation*, *uplift*) |
+| 5 | Governança auditável | Decisão registrada em prova criptográfica off-chain/on-chain |
 
-1. A Camada 1 define o contrato cientifico do experimento.
-2. A Camada 2 transforma contrato em medicao valida.
-3. A Camada 3 converte medicao em decisao em tempo real.
-4. A Camada 4 executa falha controlada para gerar evidencia.
-5. A Camada 5 decide promocao de release por gate multiobjetivo.
-6. A Camada 6 ancora e prova integridade de toda decisao.
-7. A Camada 7 aprende causalmente e atualiza politica.
+## 11. Integração entre camadas
+
+| Etapa | Camada | Responsabilidade |
+|---|---|---|
+| 1 | Camada 1 | Define o contrato científico do experimento (hipóteses, FMEA, *chaos budget*) |
+| 2 | Camada 2 | Transforma o contrato em medição válida (SLI/SLO, RRIndex) |
+| 3 | Camada 3 | Converte medição em decisão em tempo real (ALERT/LIMIT/BLOCK) |
+| 4 | Camada 4 | Executa falha controlada para gerar evidência (campanhas, *ablation*) |
+| 5 | Camada 5 | Decide a promoção de release por *gate* multiobjetivo |
+| 6 | Camada 6 | Ancora e prova a integridade de toda decisão |
+| 7 | Camada 7 | Aprende causalmente e atualiza a política, retroalimentando a Camada 1 |
 
 ## 12. Diferencial do modelo proposto
 
-O diferencial do framework nao e ferramenta isolada. E a integracao formal entre:
+O diferencial do framework não é uma ferramenta isolada, mas a integração formal entre:
 
-- controle deterministico de seguranca,
-- inferencia estatistica e causal,
-- experimentacao reproduzivel,
-- e governanca criptograficamente verificavel.
+| Eixo | Contribuição |
+|---|---|
+| Controle determinístico de segurança | Limita o *blast radius* por meio de limiares explícitos (`ALERT`/`LIMIT`/`BLOCK`) |
+| Inferência estatística e causal | Garante que efeitos observados sejam atribuíveis, não apenas correlacionados |
+| Experimentação reprodutível | Protocolos pré-registrados e campanhas comparáveis entre execuções |
+| Governança criptograficamente verificável | Prova de integridade e proveniência de cada decisão tomada |
 
-Isso permite defender em banca que o modelo evolui de PoC para um sistema de engenharia cientifica de dependabilidade.
+Essa integração permite sustentar, em banca, que o modelo evolui de uma prova de conceito (PoC) para um sistema de engenharia científica de dependabilidade.
 
-## 13. Checklist
+## 13. Checklist de apresentação
 
-Roteiro de implementacao, teste e validacao de cada camada:
+Roteiro recomendado para apresentar a implementação, os testes e a validação de cada camada:
 
-1. Mostrar o diagrama macro das 7 camadas.
-2. Mostrar um fluxo ponta a ponta de artefatos.
-3. Mostrar a sequencia temporal de uma campanha real.
-4. Mostrar a arvore de decisao de release.
-5. Mostrar o nivel de evidencia alcancado (1 a 5).
+1. Apresentar o diagrama macro das 7 camadas (Seção 4).
+2. Apresentar um fluxo ponta a ponta de artefatos (Seção 5).
+3. Apresentar a sequência temporal de uma campanha real (Seção 7).
+4. Apresentar a árvore de decisão de release (Seção 9).
+5. Apresentar o nível de evidência alcançado, de 1 a 5 (Seção 10).

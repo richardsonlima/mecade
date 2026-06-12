@@ -1,14 +1,16 @@
-# MECADE Camada 4 - Implementacao E2E
+# MECADE Camada 4 - Implementação E2E
 
-Camada 4: Execucao Experimental Cientifica de Falhas.
+Camada 4: Execução Experimental Científica de Falhas.
 
 ## Estrutura
 
-- `chaos/layer4/`: artefatos obrigatorios da camada
-- `python/`: scripts de geracao, analise e validacao
-- `scripts/`: instalacao, E2E e operacao Docker
-- `docker/`: configs minimas de Prometheus/Grafana/OTel
-- `notebooks/`: espaco para estudos exploratorios
+| Caminho | Conteúdo |
+|---|---|
+| `chaos/layer4/` | Artefatos obrigatórios da camada |
+| `python/` | Scripts de geração, análise e validação |
+| `scripts/` | Instalação, E2E e operação Docker |
+| `docker/` | Configurações mínimas de Prometheus/Grafana/OTel |
+| `notebooks/` | Espaço para estudos exploratórios |
 
 ## Quickstart
 
@@ -20,7 +22,9 @@ bash scripts/run-e2e.sh
 
 ## Endpoints locais
 
-- Prometheus: http://localhost:9390
-- Grafana: http://localhost:3300 (admin/admin)
-- OpenTelemetry Collector: http://localhost:9388
-- Jupyter Lab: http://localhost:9098/lab?token=mecade
+| Serviço | Endpoint |
+|---|---|
+| Prometheus | `http://localhost:9390` |
+| Grafana (admin/admin) | `http://localhost:3300` |
+| OpenTelemetry Collector | `http://localhost:9388` |
+| Jupyter Lab (token `mecade`) | `http://localhost:9098/lab?token=mecade` |

@@ -1,15 +1,17 @@
-# MECADE Camada 2 - Implementacao E2E
+# MECADE Camada 2 - Implementação E2E
 
-Este pacote implementa a Camada 2 (Metrologia Cientifica de Objetivos e Indicadores) do MECADE com artefatos obrigatorios, scripts de validacao e stack Docker para Linux/macOS.
+Este pacote implementa a Camada 2 (Metrologia Científica de Objetivos e Indicadores) do MECADE com artefatos obrigatórios, scripts de validação e *stack* Docker para Linux/macOS.
 
 ## Estrutura
 
-- `planning/layer2/`: artefatos obrigatorios da Camada 2
-- `python/`: scripts Python para geracao, analise e validacao
-- `scripts/`: scripts shell de instalacao e execucao E2E
-- `observability/dashboards/`: dashboard cientifico da Camada 2
-- `docker/`: configuracao do Prometheus/Grafana/OpenTelemetry
-- `docker-compose.yml`: stack local para observabilidade e analise
+| Caminho | Conteúdo |
+|---|---|
+| `planning/layer2/` | Artefatos obrigatórios da Camada 2 |
+| `python/` | Scripts Python para geração, análise e validação |
+| `scripts/` | Scripts shell de instalação e execução E2E |
+| `observability/dashboards/` | Dashboard científico da Camada 2 |
+| `docker/` | Configuração do Prometheus/Grafana/OpenTelemetry |
+| `docker-compose.yml` | *Stack* local para observabilidade e análise |
 
 ## Requisitos
 
@@ -27,32 +29,32 @@ bash scripts/run-e2e.sh
 # bash scripts/run_e2e.sh
 ```
 
-## Subir stack Docker
+## Subir a stack Docker
 
 ```bash
 bash scripts/docker-up.sh
 ```
 
-Endpoints locais:
-
-- Prometheus: http://localhost:9190
-- Grafana: http://localhost:3100 (admin/admin)
-- OpenTelemetry Collector: http://localhost:9188
-- Thanos Sidecar: http://localhost:10902
-- Thanos Query: http://localhost:10903
-- Jupyter Lab: http://localhost:8898/lab?token=mecade
+| Serviço | Endpoint |
+|---|---|
+| Prometheus | `http://localhost:9190` |
+| Grafana (admin/admin) | `http://localhost:3100` |
+| OpenTelemetry Collector | `http://localhost:9188` |
+| Thanos Sidecar | `http://localhost:10902` |
+| Thanos Query | `http://localhost:10903` |
+| Jupyter Lab (token `mecade`) | `http://localhost:8898/lab?token=mecade` |
 
 ## Smoke test da stack
 
-Depois de subir os servicos, rode um unico comando para validar endpoints e servicos auxiliares:
+Depois de subir os serviços, rode um único comando para validar endpoints e serviços auxiliares:
 
 ```bash
 bash scripts/smoke-test.sh
 ```
 
-Observacao: o Sloth e disponibilizado como CLI no compose (execucao one-shot para validacao SLO as Code), e o smoke test valida sua execucao.
+> O Sloth é disponibilizado como CLI no compose (execução *one-shot* para validação SLO as Code), e o smoke test valida sua execução.
 
-## Derrubar stack
+## Derrubar a stack
 
 ```bash
 bash scripts/docker-down.sh
@@ -60,18 +62,23 @@ bash scripts/docker-down.sh
 
 ## Fluxo E2E recomendado
 
-1. Gerar/atualizar artefatos base:
-   - `python python/generate_artifacts.py`
-2. Calcular RRIndex metrologico:
-   - `python python/compute_rrindex.py`
-3. Rodar inferencia estatistica de nao regressao:
-   - `python python/run_inference.py`
-4. Validar gate cientifico da camada:
-   - `python python/validate_layer2.py`
-5. (Opcional) Coletar evidencias:
-   - `bash scripts/generate-evidence.sh`
+```mermaid
+flowchart LR
+    A["1. Gerar artefatos base\npython/generate_artifacts.py"] --> B["2. Calcular RRIndex\npython/compute_rrindex.py"]
+    B --> C["3. Inferência estatística\npython/run_inference.py"]
+    C --> D["4. Validar gate científico\npython/validate_layer2.py"]
+    D --> E["5. Coletar evidências\nscripts/generate-evidence.sh"]
+```
 
-## Observacoes
+| Etapa | Comando |
+|---|---|
+| 1. Gerar/atualizar artefatos base | `python python/generate_artifacts.py` |
+| 2. Calcular RRIndex metrológico | `python python/compute_rrindex.py` |
+| 3. Rodar inferência estatística de não regressão | `python python/run_inference.py` |
+| 4. Validar gate científico da camada | `python python/validate_layer2.py` |
+| 5. (Opcional) Coletar evidências | `bash scripts/generate-evidence.sh` |
 
-- Todos os arquivos obrigatorios da Camada 2 ja vem preenchidos para o cenario financeiro + microsservicos + Kubernetes.
-- Ajuste formulas de SLI/SLO, limiares e regras estatisticas para o contexto real da sua campanha.
+## Observações
+
+- Todos os arquivos obrigatórios da Camada 2 já vêm preenchidos para o cenário financeiro + microsserviços + Kubernetes.
+- Ajuste fórmulas de SLI/SLO, limiares e regras estatísticas para o contexto real da sua campanha.

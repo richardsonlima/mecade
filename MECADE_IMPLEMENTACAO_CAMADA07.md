@@ -1,28 +1,43 @@
-# HOWTO: Camada 7 (Aprendizado Causal Contínuo e Evolucao de Politicas) do MECADE
+# HOWTO: Camada 7 (Aprendizado Causal Contínuo e Evolução de Políticas) do MECADE
 
-Eu escrevi este guia como passo a passo E2E para implementar, testar e validar tecnicamente a evolucao de politicas na Camada 7.
+Este guia é o passo a passo E2E para implementar, testar e validar tecnicamente a evolução de políticas na Camada 7.
 
-Stack open source recomendada:
+## Sumário
 
-- Argo Workflows (orquestracao periódica do loop)
-- PostgreSQL + DuckDB (base historica e analise)
-- MLflow (rastreio de versoes, parametros e resultados)
-- DVC (versionamento de datasets e artefatos)
-- Evidently + Great Expectations (drift e qualidade de dados)
-- DoWhy/EconML (inferencia causal para efeito de politica)
-- Grafana + Prometheus (acompanhamento de maturidade)
+- [Stack recomendada](#stack-recomendada)
+- [1. O que torna esta Camada 7 inovadora](#1-o-que-torna-esta-camada-7-inovadora)
+- [2. Entregas obrigatórias da Camada 7](#2-entregas-obrigatórias-da-camada-7)
+- [3. Implementação passo a passo](#3-implementação-passo-a-passo)
+- [4. Validação de fato da Camada 7](#4-validação-de-fato-da-camada-7)
+- [5. Protocolo de validação experimental](#5-protocolo-de-validação-experimental)
+- [6. Comandos úteis](#6-comandos-úteis)
+- [7. Definição de pronto (Definition of Done)](#7-definição-de-pronto-definition-of-done)
+- [8. Erros comuns a evitar](#8-erros-comuns-a-evitar)
+- [9. Fechamento técnico](#9-fechamento-técnico)
+
+## Stack recomendada
+
+| Componente | Função na Camada 7 |
+|---|---|
+| Argo Workflows | Orquestração periódica do *loop* |
+| PostgreSQL + DuckDB | Base histórica e análise |
+| MLflow | Rastreio de versões, parâmetros e resultados |
+| DVC | Versionamento de *datasets* e artefatos |
+| Evidently + Great Expectations | *Drift* e qualidade de dados |
+| DoWhy/EconML | Inferência causal para efeito de política |
+| Grafana + Prometheus | Acompanhamento de maturidade |
 
 ## 1. O que torna esta Camada 7 inovadora
 
-A inovação não é apenas "medir e ajustar". É evoluir controle com evidência causal:
+A inovação não é apenas "medir e ajustar", e sim evoluir o controle com evidência causal:
 
-1. Loop fechado com hipótese de melhoria explicitada por ciclo.
+1. *Loop* fechado com hipótese de melhoria explicitada por ciclo.
 2. Atualização de ALERT/LIMIT/BLOCK por otimização sob restrições de segurança.
 3. Avaliação causal de intervenção (efeito real da nova política).
-4. Guardrails contra regressão e overfitting operacional.
-5. Promoção de política como release científico (com aprovação e rollback).
+4. *Guardrails* contra regressão e *overfitting* operacional.
+5. Promoção de política como *release* científico (com aprovação e *rollback*).
 
-## 2. Entregas obrigatorias da Camada 7
+## 2. Entregas obrigatórias da Camada 7
 
 ```bash
 mkdir -p improvement/layer7
@@ -33,24 +48,37 @@ mkdir -p improvement/layer7/evaluation
 mkdir -p improvement/layer7/reports
 ```
 
-Arquivos obrigatorios:
+Arquivos obrigatórios:
 
-- improvement/layer7/contracts/learning-loop-contract.yaml
-- improvement/layer7/models/policy-search-space.yaml
-- improvement/layer7/models/causal-evaluation-plan.md
-- improvement/layer7/workflows/continuous-policy-learning.yaml
-- improvement/layer7/evaluation/upgrade-gate.yaml
-- improvement/layer7/evaluation/regression-guardrails.yaml
-- improvement/layer7/reports/cycle-review-template.md
-- improvement/layer7/validation-protocol.md
+| Artefato | Caminho |
+|---|---|
+| Contrato do *loop* de aprendizado | `improvement/layer7/contracts/learning-loop-contract.yaml` |
+| Espaço de busca da política | `improvement/layer7/models/policy-search-space.yaml` |
+| Plano de avaliação causal | `improvement/layer7/models/causal-evaluation-plan.md` |
+| Workflow do ciclo contínuo | `improvement/layer7/workflows/continuous-policy-learning.yaml` |
+| Gate de promoção de política | `improvement/layer7/evaluation/upgrade-gate.yaml` |
+| *Guardrails* de regressão | `improvement/layer7/evaluation/regression-guardrails.yaml` |
+| Template de revisão de ciclo | `improvement/layer7/reports/cycle-review-template.md` |
+| Protocolo de validação | `improvement/layer7/validation-protocol.md` |
 
-Sem esses artefatos, a camada nao sustenta alegação de maturidade evolutiva.
+Sem esses artefatos, a camada não sustenta a alegação de maturidade evolutiva.
 
-## 3. Implementacao passo a passo (formato banca)
+## 3. Implementação passo a passo
 
-### Passo 3.1 - Contrato formal do loop de aprendizado
+```mermaid
+flowchart TD
+    A["3.1 Contrato formal\ndo loop"] --> B["3.2 Espaço de busca\nda política"]
+    B --> C["3.3 Plano de avaliação\ncausal"]
+    C --> D["3.4 Workflow do\nciclo contínuo"]
+    D --> E["3.5 Gate de promoção\nde política"]
+    E --> F["3.6 Guardrails contra\nregressão/overfitting"]
+    F --> G["3.7 Relatório de\nciclo científico"]
+    G -. "feedback" .-> A
+```
 
-Exemplo em improvement/layer7/contracts/learning-loop-contract.yaml:
+### 3.1 Contrato formal do loop de aprendizado
+
+Exemplo em `improvement/layer7/contracts/learning-loop-contract.yaml`:
 
 ```yaml
 cadence: weekly
@@ -71,11 +99,11 @@ constraints:
   - safety_limit_violations_eq: 0
 ```
 
-Diferencial: deixa explícito objetivo, restrições e produtos do ciclo.
+Diferencial: deixa explícitos o objetivo, as restrições e os produtos do ciclo.
 
-### Passo 3.2 - Definir espaço de busca da politica
+### 3.2 Definir espaço de busca da política
 
-Exemplo em improvement/layer7/models/policy-search-space.yaml:
+Exemplo em `improvement/layer7/models/policy-search-space.yaml`:
 
 ```yaml
 policy_parameters:
@@ -97,31 +125,31 @@ method:
   objective: "min_mttr_subject_to_safety_constraints"
 ```
 
-Diferencial: tuning deixa de ser heurístico e vira otimização formal.
+Diferencial: o *tuning* deixa de ser heurístico e passa a ser uma otimização formal.
 
-### Passo 3.3 - Planejar avaliação causal da mudança
+### 3.3 Planejar avaliação causal da mudança
 
-Em improvement/layer7/models/causal-evaluation-plan.md:
+Em `improvement/layer7/models/causal-evaluation-plan.md`:
 
-```md
+```text
 Pergunta:
 - Qual o efeito causal da policy_version_k sobre MTTR e taxa de bloqueio falso?
 
-Estratégia:
-- Diferença-em-diferenças entre grupos comparáveis (antes/depois + controle).
-- Ajuste por covariáveis de carga e sazonalidade.
+Estrategia:
+- Diferenca-em-diferencas entre grupos comparaveis (antes/depois + controle).
+- Ajuste por covariaveis de carga e sazonalidade.
 
-Saídas:
+Saidas:
 - ATT estimado para MTTR.
 - IC95% do efeito.
 - Robustez em analises de sensibilidade.
 ```
 
-Diferencial: separa ganho real de ruído operacional.
+Diferencial: separa o ganho real do ruído operacional.
 
-### Passo 3.4 - Orquestrar ciclo de aprendizado como workflow
+### 3.4 Orquestrar o ciclo de aprendizado como workflow
 
-Exemplo em improvement/layer7/workflows/continuous-policy-learning.yaml:
+Exemplo em `improvement/layer7/workflows/continuous-policy-learning.yaml`:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -171,9 +199,18 @@ spec:
           args: ["{{inputs.parameters.cmd}}"]
 ```
 
-### Passo 3.5 - Definir gate de promoção de política
+```mermaid
+flowchart LR
+    A["Ingest data"] --> B["Optimize policy"]
+    B --> C["Causal eval"]
+    C --> D{"Upgrade gate\naprovado?"}
+    D -- sim --> E["Promover\nnova política"]
+    D -- não --> F["Rollback para\npolítica anterior"]
+```
 
-Exemplo em improvement/layer7/evaluation/upgrade-gate.yaml:
+### 3.5 Definir gate de promoção de política
+
+Exemplo em `improvement/layer7/evaluation/upgrade-gate.yaml`:
 
 ```yaml
 promote_if:
@@ -186,11 +223,11 @@ otherwise:
   action: rollback_to_previous_policy
 ```
 
-Diferencial: política só promove com ganho causal + segurança.
+Diferencial: a política só é promovida com ganho causal e segurança preservada.
 
-### Passo 3.6 - Guardrails contra regressão e overfitting
+### 3.6 Guardrails contra regressão e overfitting
 
-Exemplo em improvement/layer7/evaluation/regression-guardrails.yaml:
+Exemplo em `improvement/layer7/evaluation/regression-guardrails.yaml`:
 
 ```yaml
 guardrails:
@@ -202,66 +239,44 @@ guardrails:
     rule: "if_false_block_rate_gt_0.12_then_rollback"
 ```
 
-### Passo 3.7 - Relatório de ciclo científico
+### 3.7 Relatório de ciclo científico
 
-Template em improvement/layer7/reports/cycle-review-template.md deve conter:
+O template em `improvement/layer7/reports/cycle-review-template.md` deve conter:
 
-1. Hipótese do ciclo.
-2. Policy candidata e diff da policy anterior.
-3. Efeito causal estimado (ATT + IC95%).
-4. Métricas de segurança (falso bloqueio, missed gray failure).
-5. Decisão (promover/reverter) e justificativa auditável.
+| Seção | Conteúdo |
+|---|---|
+| 1 | Hipótese do ciclo |
+| 2 | Política candidata e *diff* da política anterior |
+| 3 | Efeito causal estimado (ATT + IC 95%) |
+| 4 | Métricas de segurança (falso bloqueio, *missed gray failure*) |
+| 5 | Decisão (promover/reverter) e justificativa auditável |
 
-## 4. Validacao de fato da Camada 7
+## 4. Validação de fato da Camada 7
 
-A camada está validada quando melhoria é causalmente demonstrada, reproduzível e governada por critérios formais.
+A camada está validada quando a melhoria é causalmente demonstrada, reprodutível e governada por critérios formais.
 
-Checklist go/no-go:
-
-1. Efeito causal demonstrado
-- Mudança de política mostra efeito significativo em métrica primária.
-
-2. Segurança preservada
-- Não há piora relevante em limites de segurança e detecção crítica.
-
-3. Robustez transversal
-- Ganho não depende de um único serviço/cenário.
-
-4. Governança auditável
-- Toda promoção/reversão de política possui evidência e aprovação registrada.
-
-5. Reprodutibilidade
-- Reexecução do ciclo com mesmos insumos reproduz a decisão.
+| # | Critério go/no-go | Condição de aprovação |
+|---|---|---|
+| 1 | Efeito causal demonstrado | A mudança de política mostra efeito significativo na métrica primária |
+| 2 | Segurança preservada | Não há piora relevante nos limites de segurança e detecção crítica |
+| 3 | Robustez transversal | O ganho não depende de um único serviço/cenário |
+| 4 | Governança auditável | Toda promoção/reversão de política possui evidência e aprovação registrada |
+| 5 | Reprodutibilidade | A reexecução do ciclo com os mesmos insumos reproduz a decisão |
 
 Se os 5 itens passarem, a Camada 7 está validada.
 
-## 5. Protocolo de validacao experimental
+## 5. Protocolo de validação experimental
 
-Exemplo em improvement/layer7/validation-protocol.md:
+Exemplo em `improvement/layer7/validation-protocol.md`:
 
-```md
-# Protocolo de Validacao - Camada 7
+| Cenário | Descrição | Critério de validação |
+|---|---|---|
+| A - Upgrade com ganho real | Gerar política candidata por otimização e medir ATT em MTTR com IC 95% | Promover somente se o gate for aprovado |
+| B - Upgrade regressivo | Introduzir política propositalmente agressiva | Aumento de falso bloqueio aciona *rollback* automático |
+| C - Drift de ambiente | Alterar o perfil de carga | Validar a estabilidade da política candidata |
+| D - Reprodutibilidade | Repetir o ciclo com os mesmos dados e *seed* | Mesma recomendação de promoção/reversão |
 
-Cenario A - Upgrade com ganho real:
-- gerar policy candidata por otimizacao
-- medir ATT em MTTR com IC95%
-- promover somente se gate aprovado
-
-Cenario B - Upgrade regressivo:
-- introduzir policy propositalmente agressiva
-- validar aumento de falso bloqueio
-- acionar rollback automatico
-
-Cenario C - Drift de ambiente:
-- alterar perfil de carga
-- validar estabilidade da policy candidata
-
-Cenario D - Reprodutibilidade:
-- repetir ciclo com mesmos dados e seed
-- validar mesma recomendacao de promoção/reversão
-```
-
-## 6. Comandos uteis
+## 6. Comandos úteis
 
 ```bash
 # disparar ciclo manualmente
@@ -277,24 +292,26 @@ mlflow ui --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlru
 python improvement/layer7/jobs/causal_eval.py --policy-version vNext
 ```
 
-## 7. Definicao de pronto (Definition of Done)
+## 7. Definição de pronto (Definition of Done)
 
-Camada 7 é considerada DONE quando:
+A Camada 7 é considerada `DONE` quando:
 
-- Loop contínuo executa com cadência definida.
-- Política candidata é gerada por otimização sob restrições.
-- Promoção depende de efeito causal estatisticamente robusto.
-- Guardrails de regressão e rollback estão operacionais.
-- Decisões de política são auditáveis e reproduzíveis.
+- O *loop* contínuo executa com cadência definida.
+- A política candidata é gerada por otimização sob restrições.
+- A promoção depende de efeito causal estatisticamente robusto.
+- Os *guardrails* de regressão e *rollback* estão operacionais.
+- As decisões de política são auditáveis e reprodutíveis.
 
-## 8. Evitar erros comuns
+## 8. Erros comuns a evitar
 
-- Chamar correlação de causalidade sem desenho apropriado.
-- Ajustar thresholds por intuição sem espaço de busca formal.
-- Promover política sem teste de robustez multi-cenário.
-- Ignorar regressão de segurança ao otimizar MTTR.
-- Não versionar dados, política e decisão do ciclo.
+| Erro | Consequência |
+|---|---|
+| Chamar correlação de causalidade sem desenho apropriado | Conclusões sobre efeito da política são inválidas |
+| Ajustar *thresholds* por intuição, sem espaço de busca formal | Tuning perde reprodutibilidade e rastreabilidade |
+| Promover política sem teste de robustez multi-cenário | Ganho pode não generalizar para produção |
+| Ignorar regressão de segurança ao otimizar MTTR | Otimização local cria risco operacional |
+| Não versionar dados, política e decisão do ciclo | Auditoria do aprendizado contínuo fica impossível |
 
-## 9. Fechamento tecnico
+## 9. Fechamento técnico
 
-Nesta abordagem, a Camada 7 estrutura melhoria continua com criterio causal, guardrails de seguranca e decisao formal de promover ou reverter politica.
+Com esta abordagem, a Camada 7 estrutura a melhoria contínua com critério causal, *guardrails* de segurança e decisão formal de promover ou reverter política.

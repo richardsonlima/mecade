@@ -1,14 +1,16 @@
-# MECADE Camada 6 - Implementacao E2E
+# MECADE Camada 6 - Implementação E2E
 
-Camada 6: Auditoria Cientifica, Prova Criptografica e Governanca Deterministica.
+Camada 6: Auditoria Científica, Prova Criptográfica e Governança Determinística.
 
 ## Estrutura
 
-- `audit/layer6/`: artefatos obrigatorios da camada
-- `python/`: scripts de geracao, analise e validacao
-- `scripts/`: instalacao, E2E e operacao Docker
-- `docker/`: configs minimas de Prometheus/Grafana/OTel
-- `notebooks/`: espaco para estudos exploratorios
+| Caminho | Conteúdo |
+|---|---|
+| `audit/layer6/` | Artefatos obrigatórios da camada |
+| `python/` | Scripts de geração, análise e validação |
+| `scripts/` | Instalação, E2E e operação Docker |
+| `docker/` | Configurações mínimas de Prometheus/Grafana/OTel |
+| `notebooks/` | Espaço para estudos exploratórios |
 
 ## Quickstart
 
@@ -20,7 +22,9 @@ bash scripts/run-e2e.sh
 
 ## Endpoints locais
 
-- Prometheus: http://localhost:9590
-- Grafana: http://localhost:3500 (admin/admin)
-- OpenTelemetry Collector: http://localhost:9588
-- Jupyter Lab: http://localhost:9298/lab?token=mecade
+| Serviço | Endpoint |
+|---|---|
+| Prometheus | `http://localhost:9590` |
+| Grafana (admin/admin) | `http://localhost:3500` |
+| OpenTelemetry Collector | `http://localhost:9588` |
+| Jupyter Lab (token `mecade`) | `http://localhost:9298/lab?token=mecade` |

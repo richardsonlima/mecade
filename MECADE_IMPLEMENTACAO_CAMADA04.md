@@ -1,26 +1,41 @@
-# HOWTO: Camada 4 (Execucao Experimental Cientifica de Falhas) do MECADE
+# HOWTO: Camada 4 (Execução Experimental Científica de Falhas) do MECADE
 
-Eu escrevi este guia como roteiro E2E para executar, testar e validar tecnicamente experimentos de falha na Camada 4.
+Este guia é o roteiro E2E para executar, testar e validar tecnicamente experimentos de falha na Camada 4.
 
-Stack open source recomendada:
+## Sumário
 
-- LitmusChaos + Chaos Mesh (injeção de falhas em diferentes niveis)
-- Kubernetes + Istio (controle de escopo e rede)
-- Argo Workflows (orquestracao reproduzivel)
-- Keptn ou custom evaluator em Python (avaliacao automatizada de experimento)
-- Prometheus + Tempo + Loki (evidencias operacionais e causais)
+- [Stack recomendada](#stack-recomendada)
+- [1. O que torna esta Camada 4 inovadora](#1-o-que-torna-esta-camada-4-inovadora)
+- [2. Entregas obrigatórias da Camada 4](#2-entregas-obrigatórias-da-camada-4)
+- [3. Implementação passo a passo](#3-implementação-passo-a-passo)
+- [4. Validação de fato da Camada 4](#4-validação-de-fato-da-camada-4)
+- [5. Protocolo de validação experimental](#5-protocolo-de-validação-experimental)
+- [6. Comandos úteis](#6-comandos-úteis)
+- [7. Definição de pronto (Definition of Done)](#7-definição-de-pronto-definition-of-done)
+- [8. Erros comuns a evitar](#8-erros-comuns-a-evitar)
+- [9. Fechamento técnico](#9-fechamento-técnico)
+
+## Stack recomendada
+
+| Componente | Função na Camada 4 |
+|---|---|
+| LitmusChaos + Chaos Mesh | Injeção de falhas em diferentes níveis |
+| Kubernetes + Istio | Controle de escopo e rede |
+| Argo Workflows | Orquestração reprodutível |
+| Keptn ou *evaluator* Python customizado | Avaliação automatizada do experimento |
+| Prometheus + Tempo + Loki | Evidências operacionais e causais |
 
 ## 1. O que torna esta Camada 4 inovadora
 
-A inovacao nao e apenas "rodar chaos". E executar falhas como experimento controlado com validade interna:
+A inovação não é apenas "rodar chaos", e sim executar falhas como experimento controlado com validade interna:
 
-1. DSL de cenario para padronizar injecao, escopo, duracao e rollback.
-2. Execucao progressiva canario com expansao condicionada a gates.
-3. Preflight formal de seguranca antes de cada rodada.
-4. Desenho de ablação (com/sem mecanismo) para identificar causalidade de mitigacao.
-5. Medida de efeito operacional com criterio estatistico, nao so observacao visual.
+1. DSL de cenário para padronizar injeção, escopo, duração e *rollback*.
+2. Execução progressiva canário, com expansão condicionada a *gates*.
+3. *Preflight* formal de segurança antes de cada rodada.
+4. Desenho de *ablation* (com/sem mecanismo) para identificar causalidade de mitigação.
+5. Medida de efeito operacional com critério estatístico, não apenas observação visual.
 
-## 2. Entregas obrigatorias da Camada 4
+## 2. Entregas obrigatórias da Camada 4
 
 ```bash
 mkdir -p chaos/layer4
@@ -31,23 +46,34 @@ mkdir -p chaos/layer4/safety
 mkdir -p chaos/layer4/evaluation
 ```
 
-Arquivos obrigatorios:
+Arquivos obrigatórios:
 
-- chaos/layer4/dsl/scenario-spec.yaml
-- chaos/layer4/safety/preflight-checklist.yaml
-- chaos/layer4/experiments/fault-library.yaml
-- chaos/layer4/workflows/progressive-chaos.yaml
-- chaos/layer4/evaluation/effect-size-criteria.md
-- chaos/layer4/evaluation/ablation-plan.md
-- chaos/layer4/validation-protocol.md
+| Artefato | Caminho |
+|---|---|
+| DSL de cenário | `chaos/layer4/dsl/scenario-spec.yaml` |
+| Checklist de *preflight* | `chaos/layer4/safety/preflight-checklist.yaml` |
+| Biblioteca de falhas | `chaos/layer4/experiments/fault-library.yaml` |
+| Workflow de caos progressivo | `chaos/layer4/workflows/progressive-chaos.yaml` |
+| Critério de tamanho de efeito | `chaos/layer4/evaluation/effect-size-criteria.md` |
+| Plano de *ablation* | `chaos/layer4/evaluation/ablation-plan.md` |
+| Protocolo de validação | `chaos/layer4/validation-protocol.md` |
 
-Sem esses artefatos, a camada nao comprova efetividade com rigor.
+Sem esses artefatos, a camada não comprova efetividade com rigor.
 
-## 3. Implementacao passo a passo (formato banca)
+## 3. Implementação passo a passo
 
-### Passo 3.1 - Definir DSL de cenario experimental
+```mermaid
+flowchart TD
+    A["3.1 DSL de cenário\nexperimental"] --> B["3.2 Preflight de\nsegurança"]
+    B --> C["3.3 Biblioteca de falhas\ncom mapeamento causal"]
+    C --> D["3.4 Caos progressivo\ncanário"]
+    D --> E["3.5 Plano de ablation\npara causalidade"]
+    E --> F["3.6 Critério de\nefeito operacional"]
+```
 
-Exemplo em chaos/layer4/dsl/scenario-spec.yaml:
+### 3.1 Definir DSL de cenário experimental
+
+Exemplo em `chaos/layer4/dsl/scenario-spec.yaml`:
 
 ```yaml
 scenario_id: S4_NET_LATENCY_PROGRESSIVE
@@ -78,11 +104,11 @@ rollback:
   restore_replicas: true
 ```
 
-Diferencial: a DSL permite reexecucao identica e comparacao entre rodadas.
+Diferencial: a DSL permite reexecução idêntica e comparação entre rodadas.
 
-### Passo 3.2 - Preflight de seguranca automatizado
+### 3.2 Preflight de segurança automatizado
 
-Exemplo em chaos/layer4/safety/preflight-checklist.yaml:
+Exemplo em `chaos/layer4/safety/preflight-checklist.yaml`:
 
 ```yaml
 checks:
@@ -97,11 +123,11 @@ checks:
 on_fail: block_experiment
 ```
 
-Sem preflight aprovado, experimento nao inicia.
+Sem *preflight* aprovado, o experimento não inicia.
 
-### Passo 3.3 - Biblioteca de falhas com mapeamento causal
+### 3.3 Biblioteca de falhas com mapeamento causal
 
-Exemplo em chaos/layer4/experiments/fault-library.yaml:
+Exemplo em `chaos/layer4/experiments/fault-library.yaml`:
 
 ```yaml
 faults:
@@ -124,9 +150,9 @@ faults:
     causal_path: throttling->slow_response->error_spike
 ```
 
-### Passo 3.4 - Orquestrar caos progressivo canario
+### 3.4 Orquestrar caos progressivo canário
 
-Exemplo em chaos/layer4/workflows/progressive-chaos.yaml:
+Exemplo em `chaos/layer4/workflows/progressive-chaos.yaml`:
 
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -174,24 +200,40 @@ spec:
         args: ["{{inputs.parameters.cmd}}"]
 ```
 
-Diferencial: cada etapa so avanca com gate aprovado.
+Diferencial: cada etapa só avança com *gate* aprovado.
 
-### Passo 3.5 - Plano de ablação para causalidade
+```mermaid
+flowchart LR
+    P["Preflight"] -->|aprovado| S1["Step 1\n150ms"]
+    S1 --> G1{"Gate 1\naprovado?"}
+    G1 -- sim --> S2["Step 2\n400ms"]
+    G1 -- não --> ABORT["Hard abort\ne rollback"]
+    S2 --> G2{"Gate 2\naprovado?"}
+    G2 -- sim --> S3["Step 3\n800ms"]
+    G2 -- não --> ABORT
+    S3 --> G3{"Gate 3\naprovado?"}
+    G3 -- não --> ABORT
+    G3 -- sim --> DONE["Campanha concluída"]
+```
 
-Em chaos/layer4/evaluation/ablation-plan.md documente:
+### 3.5 Plano de ablation para causalidade
 
-1. Baseline reativo sem ALERT/LIMIT/BLOCK.
-2. Execucao com ALERT apenas.
-3. Execucao com ALERT+LIMIT.
-4. Execucao completa com ALERT+LIMIT+BLOCK.
+Em `chaos/layer4/evaluation/ablation-plan.md`, documente as condições experimentais:
 
-Objetivo: isolar contribuicao causal de cada mecanismo.
+| Condição | Descrição |
+|---|---|
+| 1 | Baseline reativo, sem ALERT/LIMIT/BLOCK |
+| 2 | Execução apenas com ALERT |
+| 3 | Execução com ALERT + LIMIT |
+| 4 | Execução completa com ALERT + LIMIT + BLOCK |
 
-### Passo 3.6 - Definir criterio de efeito operacional
+Objetivo: isolar a contribuição causal de cada mecanismo.
 
-Exemplo em chaos/layer4/evaluation/effect-size-criteria.md:
+### 3.6 Definir critério de efeito operacional
 
-```md
+Exemplo em `chaos/layer4/evaluation/effect-size-criteria.md`:
+
+```text
 Metrica primaria:
 - MTTR
 
@@ -204,54 +246,32 @@ Restricoes de seguranca:
 - p99 <= 450ms apos recovery
 ```
 
-## 4. Validacao de fato da Camada 4
+## 4. Validação de fato da Camada 4
 
-A camada esta validada quando a injecao e controlada, causalmente interpretavel e reproduzivel.
+A camada está validada quando a injeção é controlada, causalmente interpretável e reprodutível.
 
-Checklist go/no-go:
+| # | Critério go/no-go | Condição de aprovação |
+|---|---|---|
+| 1 | Controle de escopo | *Blast radius* respeitado em todas as rodadas |
+| 2 | Segurança experimental | *Preflight* aprovado e *hard-abort* funcional |
+| 3 | Reprodutibilidade | O cenário DSL reproduz comportamento equivalente em repetições |
+| 4 | Causalidade operacional | A *ablation* mostra ganho incremental dos mecanismos de controle |
+| 5 | Efetividade estatística | Ganho de MTTR/RTO com critério de efeito e confiança |
 
-1. Controle de escopo
-- Blast radius respeitado em todas as rodadas.
+Se os 5 itens passarem, a Camada 4 está validada.
 
-2. Seguranca experimental
-- Preflight aprovado e hard-abort funcional.
+## 5. Protocolo de validação experimental
 
-3. Reprodutibilidade
-- Cenario DSL reproduz comportamento equivalente em repeticoes.
+Exemplo em `chaos/layer4/validation-protocol.md`:
 
-4. Causalidade operacional
-- Ablacao mostra ganho incremental dos mecanismos de controle.
+| Cenário | Descrição | Critério de validação |
+|---|---|---|
+| A - *Canary progression* | Executar step 1 (150ms), step 2 (400ms) e step 3 (800ms) | Gates aprovados por etapa antes de escalar o *fault* |
+| B - *Ablation* de controles | Repetir o mesmo perfil de falha em quatro condições (baseline, ALERT, ALERT+LIMIT, completo) | Medir delta de MTTR e taxa de violação |
+| C - *Hard abort* | Forçar violação do limite duro | Interrupção no tempo alvo e *rollback* para estado seguro |
+| D - Repetibilidade | Executar no mínimo N repetições por cenário | Comparar variabilidade entre lotes |
 
-5. Efetividade estatistica
-- Ganho de MTTR/RTO com criterio de efeito + confianca.
-
-Se os 5 itens passarem, a Camada 4 esta validada.
-
-## 5. Protocolo de validacao experimental
-
-Exemplo em chaos/layer4/validation-protocol.md:
-
-```md
-# Protocolo de Validacao - Camada 4
-
-Cenario A - Canary progression:
-- executar step 1 (150ms), step 2 (400ms), step 3 (800ms)
-- validar gates por etapa antes de escalar fault
-
-Cenario B - Ablacao de controles:
-- repetir o mesmo fault profile em quatro condicoes (baseline, ALERT, ALERT+LIMIT, completo)
-- medir delta de MTTR e taxa de violacao
-
-Cenario C - Hard abort:
-- forcar violacao de limite duro
-- validar interrupcao em tempo alvo e rollback para estado seguro
-
-Cenario D - Repetibilidade:
-- executar no minimo N repeticoes por cenario
-- comparar variabilidade entre lotes
-```
-
-## 6. Comandos uteis
+## 6. Comandos úteis
 
 ```bash
 # aplicar experimentos/faults
@@ -268,24 +288,26 @@ kubectl -n shop get virtualservice
 python chaos/layer4/safety/force_safe_state.py
 ```
 
-## 7. Definicao de pronto (Definition of Done)
+## 7. Definição de pronto (Definition of Done)
 
-Camada 4 e considerada DONE quando:
+A Camada 4 é considerada `DONE` quando:
 
-- DSL de cenario esta versionada e em uso.
-- Preflight de seguranca bloqueia execucao insegura.
-- Workflow progressivo canario funciona com gates.
-- Plano de ablacao foi executado e analisado.
-- Efeito operacional foi demonstrado com criterio estatistico.
+- A DSL de cenário está versionada e em uso.
+- O *preflight* de segurança bloqueia execução insegura.
+- O *workflow* progressivo canário funciona com *gates*.
+- O plano de *ablation* foi executado e analisado.
+- O efeito operacional foi demonstrado com critério estatístico.
 
-## 8. Evitar erros comuns
+## 8. Erros comuns a evitar
 
-- Injetar falha sem desenho experimental causal.
-- Escalar intensidade sem gate intermediario.
-- Nao medir efeito incremental dos mecanismos de controle.
-- Confundir observacao pontual com evidência estatistica.
-- Nao documentar rollback e hard-abort em tempo alvo.
+| Erro | Consequência |
+|---|---|
+| Injetar falha sem desenho experimental causal | Resultado não permite atribuição de efeito |
+| Escalar intensidade sem *gate* intermediário | Risco de violar o *blast radius* sem controle |
+| Não medir o efeito incremental dos mecanismos de controle | *Ablation* perde valor explicativo |
+| Confundir observação pontual com evidência estatística | Conclusões não são generalizáveis |
+| Não documentar *rollback* e *hard-abort* em tempo alvo | Falha de segurança operacional do experimento |
 
-## 9. Fechamento tecnico
+## 9. Fechamento técnico
 
-Nesta abordagem, a Camada 4 organiza o caos de forma controlada, progressiva e mensuravel, com gates claros de seguranca e criterio de efeito.
+Com esta abordagem, a Camada 4 organiza o caos de forma controlada, progressiva e mensurável, com *gates* claros de segurança e critério de efeito.
