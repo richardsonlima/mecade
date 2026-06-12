@@ -82,3 +82,12 @@ No estado atual, o MECADE apresenta prova de conceito em ambiente controlado. Os
 ## Objetivo pratico
 
 Permitir que equipes de engenharia validem resiliencia de forma reproduzivel, auditavel e governada por risco, sem sacrificar requisitos de operacao de sistemas criticos distribuidos.
+
+
+@software{mecade,
+  author       = {LIMA, Richardson Edson de},
+  title        = {MECADE: A Chaos Engineering Model for Dependability Assurance Evaluation in Distributed Critical Systems},
+  year         = {2026},
+  publisher    = {GitHub},
+  url          = {https://github.com/Jeomon/macos-mcp](https://github.com/richardsonlima/mecade}
+}
