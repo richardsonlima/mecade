@@ -60,6 +60,14 @@ Em sistemas críticos, essa fragmentação dificulta:
 | Detecção tardia ou reativa | Falhas cinzentas (*gray failures*) não são identificadas com antecedência |
 | Auditoria desacoplada da execução | Rastreabilidade de decisões e recuperações não é imutável |
 
+### Arquivos principais de navegação
+
+| Arquivo | Descrição |
+|---|---|
+| [OVERVIEW_FRAMEWORK_MECADE.md](OVERVIEW_FRAMEWORK_MECADE.md) | Visão integrada do framework e conexão entre as 7 camadas |
+| [MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1.md](MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1.md) | Protocolo mínimo para campanha A/B pareada em Kubernetes (tier A1) |
+| [MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1/README.md](MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1/README.md) | Implementação executável da campanha mínima viável (scripts, validação e evidências) |
+
 ## Modelo de referência
 
 O MECADE organiza a operação em **7 camadas funcionais**, formando um loop fechado de melhoria contínua.
@@ -187,14 +195,6 @@ Detalhes completos em [MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1/README.md](MECADE
 | Campanha | Guia (MD) | Pasta de implementação/validação | Status atual |
 |---|---|---|---|
 | Campanha mínima viável Tier A1 | [MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1.md](MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1.md) | [MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1](MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1) | Implementação executável criada |
-
-### Arquivos principais de navegação
-
-| Arquivo | Descrição |
-|---|---|
-| [OVERVIEW_FRAMEWORK_MECADE.md](OVERVIEW_FRAMEWORK_MECADE.md) | Visão integrada do framework e conexão entre as 7 camadas |
-| [MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1.md](MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1.md) | Protocolo mínimo para campanha A/B pareada em Kubernetes (tier A1) |
-| [MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1/README.md](MECADE_CAMPANHA_MINIMA_VIAVEL_VIII_C_A1/README.md) | Implementação executável da campanha mínima viável (scripts, validação e evidências) |
 
 ## Objetivo prático
 
